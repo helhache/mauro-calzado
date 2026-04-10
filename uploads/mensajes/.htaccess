@@ -1,0 +1,19 @@
+# Protección para carpeta de archivos adjuntos
+# Permite solo descarga de archivos, no ejecución de scripts
+
+# Deshabilitar ejecución de PHP
+<Files *.php>
+    deny from all
+</Files>
+
+# Permitir solo ciertos tipos de archivos
+<FilesMatch "\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|zip|rar|txt)$">
+    Allow from all
+</FilesMatch>
+
+# Prevenir listado de directorio
+Options -Indexes
+
+# Tamaño máximo de subida (5MB)
+php_value upload_max_filesize 5M
+php_value post_max_size 5M

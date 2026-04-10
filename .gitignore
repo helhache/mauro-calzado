@@ -1,0 +1,21 @@
+# Logs
+logs/
+*.log
+
+# Uploads de usuarios (imágenes de productos, etc.)
+uploads/productos/
+uploads/img/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PHP
+*.cache

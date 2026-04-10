@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(sed -n '103,115p' \"C:/xampp/htdocs/mauro-calzado/hombre.php\")",
+      "Bash(sed -n '103,115p' \"C:/xampp/htdocs/mauro-calzado/mujer.php\")",
+      "Bash(sed -n '24,35p' \"C:/xampp/htdocs/mauro-calzado/nosotros.php\")",
+      "Bash(sed -n '75,85p' \"C:/xampp/htdocs/mauro-calzado/contactanos.php\")",
+      "Bash(git init:*)",
+      "Bash(git remote:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
