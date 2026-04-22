@@ -25,23 +25,16 @@
 // CONFIGURACIÓN DE EMAIL
 // ============================================================================
 
-// Servidor SMTP
-define('EMAIL_HOST', 'smtp.gmail.com');
-define('EMAIL_PORT', 587);
-define('EMAIL_ENCRYPTION', 'tls'); // tls o ssl
-
-// Credenciales
-// IMPORTANTE: Cambiar estos valores por tus credenciales reales
-define('EMAIL_USERNAME', 'tu-email@gmail.com'); // Tu email de Gmail
-define('EMAIL_PASSWORD', 'tu-contraseña-de-aplicacion'); // Contraseña de aplicación de Gmail (16 caracteres)
-
-// Remitente
-define('EMAIL_FROM_ADDRESS', 'noreply@maurocalzado.com');
-define('EMAIL_FROM_NAME', 'Mauro Calzado');
-
-// Configuración general
+// Lee configuración desde BD (fallback a valores por defecto si la BD no tiene el valor)
+define('EMAIL_HOST',         obtenerConfig('email_host',         'smtp.gmail.com'));
+define('EMAIL_PORT',         (int)obtenerConfig('email_port',    587));
+define('EMAIL_ENCRYPTION',   obtenerConfig('email_encryption',   'tls'));
+define('EMAIL_USERNAME',     obtenerConfig('email_username',     ''));
+define('EMAIL_PASSWORD',     obtenerConfig('email_password',     ''));
+define('EMAIL_FROM_ADDRESS', obtenerConfig('email_from_address', 'noreply@maurocalzado.com'));
+define('EMAIL_FROM_NAME',    obtenerConfig('email_from_name',    'Mauro Calzado'));
 define('EMAIL_CHARSET', 'UTF-8');
-define('EMAIL_DEBUG', 0); // 0=sin debug, 1=mensajes cliente, 2=mensajes cliente y servidor
+define('EMAIL_DEBUG', 0);
 
 /**
  * FUNCIÓN AUXILIAR: Enviar email usando PHPMailer

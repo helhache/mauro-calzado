@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 07-04-2026 a las 03:01:14
+-- Tiempo de generación: 22-04-2026 a las 05:43:41
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -152,6 +152,24 @@ CREATE TABLE `bajas_productos` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `banner_slides`
+--
+
+CREATE TABLE `banner_slides` (
+  `id` int(11) NOT NULL,
+  `titulo` varchar(200) DEFAULT NULL,
+  `subtitulo` varchar(300) DEFAULT NULL,
+  `texto_boton` varchar(100) DEFAULT NULL,
+  `url_boton` varchar(500) DEFAULT NULL,
+  `imagen` varchar(255) NOT NULL,
+  `orden` int(11) DEFAULT 0,
+  `activo` tinyint(1) DEFAULT 1,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `carrito`
 --
 
@@ -255,7 +273,7 @@ CREATE TABLE `contacto` (
 --
 
 INSERT INTO `contacto` (`id`, `nombre`, `email`, `telefono`, `asunto`, `mensaje`, `leido`, `respondido`, `fecha_envio`) VALUES
-(1, 'frtan', 'Fran@gmail.com', 'sadasd', 'Reclamo', 'dasdafgwefec', 0, 0, '2025-11-15 01:19:42');
+(1, 'frtan', 'Fran@gmail.com', 'sadasd', 'Reclamo', 'dasdafgwefec', 1, 1, '2025-11-15 01:19:42');
 
 -- --------------------------------------------------------
 
@@ -972,7 +990,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `rol_id`, `sucursal_id`, `nombre`, `apellido`, `email`, `password`, `telefono`, `dni`, `direccion`, `ciudad`, `provincia`, `codigo_postal`, `fecha_registro`, `ultimo_acceso`, `activo`, `verificado`) VALUES
-(3, 3, NULL, 'francisco', 'barrionuevo', 'fran2@example.com', '$2y$10$7eR1gUKH6QkW3h13XRf5qu37WPYXuTedaOSMgcrIpYflDsl1./qDK', '', NULL, NULL, NULL, NULL, NULL, '2025-10-17 13:53:12', '2026-02-05 21:22:58', 1, 0),
+(3, 3, NULL, 'francisco', 'barrionuevo', 'fran2@example.com', '$2y$10$7eR1gUKH6QkW3h13XRf5qu37WPYXuTedaOSMgcrIpYflDsl1./qDK', '', NULL, NULL, NULL, NULL, NULL, '2025-10-17 13:53:12', '2026-04-22 00:08:54', 1, 0),
 (4, 1, NULL, 'cliente', 'nuevo', 'cliente.nuevo@gmail.com', '$2y$10$pznQdnqQ54GtMtvPjL/sfOEY/xG/04e2w5ROYMtMXwrkelnE27.Ka', '3834678854', '43141074', '', '', '', '', '2025-11-04 18:49:09', '2026-01-26 20:43:41', 1, 0),
 (5, 1, NULL, 'Ana', 'Martínez', 'ana.martinez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834111111', '30111111', NULL, NULL, NULL, NULL, '2025-11-11 00:57:21', NULL, 1, 0),
 (6, 1, NULL, 'Carlos', 'López', 'carlos.lopez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834222222', '30222222', NULL, NULL, NULL, NULL, '2025-10-27 00:57:21', NULL, 1, 0),
@@ -980,7 +998,7 @@ INSERT INTO `usuarios` (`id`, `rol_id`, `sucursal_id`, `nombre`, `apellido`, `em
 (8, 1, NULL, 'Jorge', 'Ramírez', 'jorge.ramirez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834444444', '30444444', NULL, NULL, NULL, NULL, '2025-09-27 00:57:21', NULL, 1, 0),
 (9, 1, NULL, 'Laura', 'Torres', 'laura.torres@prueba.com', '$2y$10$qfQPvX3OR.m8Bxke3M6MsO2lhpix9HYt.pnxeKeXuAwVpwafmnNWu', '3834555555', '30555555', NULL, NULL, NULL, NULL, '2025-09-12 00:57:21', NULL, 1, 0),
 (10, 2, 1, 'Roberto', 'González', 'roberto.gonzalez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834666666', '25666666', NULL, NULL, NULL, NULL, '2025-08-13 00:57:21', NULL, 1, 0),
-(11, 2, 2, 'Patricia', 'Sánchez', 'patricia.sanchez@prueba.com', '$2y$10$3So7lSRuAw5d5HRhjS/zjOmeSTOESUtr5LoqBVAfbr2OaBqQW5FxW', '3834777777', '25777777', NULL, NULL, NULL, NULL, '2025-07-14 00:57:21', '2026-03-05 21:40:32', 1, 0),
+(11, 2, 2, 'Patricia', 'Sánchez', 'patricia.sanchez@prueba.com', '$2y$10$3So7lSRuAw5d5HRhjS/zjOmeSTOESUtr5LoqBVAfbr2OaBqQW5FxW', '3834777777', '25777777', NULL, NULL, NULL, NULL, '2025-07-14 00:57:21', '2026-04-08 00:15:39', 1, 0),
 (12, 2, 3, 'Miguel', 'Díaz', 'miguel.diaz@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834888888', '25888888', NULL, NULL, NULL, NULL, '2025-06-14 00:57:21', NULL, 1, 0),
 (13, 2, 4, 'Claudia', 'Pérez', 'claudia.perez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834999999', '25999999', NULL, NULL, NULL, NULL, '2025-05-15 00:57:21', NULL, 1, 0),
 (14, 2, 5, 'Fernando', 'Ruiz', 'fernando.ruiz@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834000000', '25000000', NULL, NULL, NULL, NULL, '2025-04-25 00:57:21', NULL, 1, 0),
@@ -1102,6 +1120,12 @@ ALTER TABLE `bajas_productos`
   ADD KEY `idx_fecha` (`fecha_baja`),
   ADD KEY `idx_motivo` (`motivo`),
   ADD KEY `idx_notificado` (`notificado_admin`);
+
+--
+-- Indices de la tabla `banner_slides`
+--
+ALTER TABLE `banner_slides`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `carrito`
@@ -1348,6 +1372,12 @@ ALTER TABLE `ventas_diarias`
 --
 ALTER TABLE `bajas_productos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `banner_slides`
+--
+ALTER TABLE `banner_slides`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `carrito`

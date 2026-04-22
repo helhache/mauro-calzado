@@ -46,6 +46,13 @@ if (!$producto = mysqli_fetch_assoc($result)) {
     redirigir('index.php');
 }
 
+// Obtener imágenes adicionales de galería
+$stmt_galeria = mysqli_prepare($conn, "SELECT imagen FROM imagenes_productos WHERE producto_id = ? ORDER BY orden ASC, id ASC");
+mysqli_stmt_bind_param($stmt_galeria, 'i', $producto_id);
+mysqli_stmt_execute($stmt_galeria);
+$result_galeria = mysqli_stmt_get_result($stmt_galeria);
+$imagenes_galeria = mysqli_fetch_all($result_galeria, MYSQLI_ASSOC);
+
 // Incrementar contador de vistas
 $stmt_vistas = mysqli_prepare($conn, "UPDATE productos SET vistas = vistas + 1 WHERE id = ?");
 mysqli_stmt_bind_param($stmt_vistas, "i", $producto_id);
@@ -143,25 +150,19 @@ require_once('includes/header.php');
                          alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
                 </div>
                 
-                <!-- Miniaturas (si hay imágenes adicionales) -->
-                <?php if (!empty($producto['imagenes_adicionales'])): 
-                    $imagenes = explode(',', $producto['imagenes_adicionales']);
-                    ?>
-                    <div class="row g-2">
+                <!-- Miniaturas (si hay imágenes adicionales en galería) -->
+                <?php if (!empty($imagenes_galeria)): ?>
+                    <div class="row g-2 mt-2">
                         <!-- Miniatura de imagen principal -->
                         <div class="col-3">
-                            <img src="img/productos/<?php echo $producto['imagen']; ?>"
+                            <img src="img/productos/<?php echo htmlspecialchars($producto['imagen']); ?>"
                                  class="img-thumbnail miniatura-producto active cursor-pointer"
                                  onclick="cambiarImagenPrincipal(this.src)">
                         </div>
-
-                        <!-- Miniaturas adicionales -->
-                        <?php foreach ($imagenes as $imagen):
-                            $imagen = trim($imagen);
-                            if (empty($imagen)) continue;
-                            ?>
+                        <!-- Miniaturas de galería -->
+                        <?php foreach ($imagenes_galeria as $img_gal): ?>
                             <div class="col-3">
-                                <img src="img/productos/<?php echo $imagen; ?>"
+                                <img src="img/productos/<?php echo htmlspecialchars($img_gal['imagen']); ?>"
                                      class="img-thumbnail miniatura-producto cursor-pointer"
                                      onclick="cambiarImagenPrincipal(this.src)">
                             </div>

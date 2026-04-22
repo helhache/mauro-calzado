@@ -377,13 +377,13 @@ require_once('includes/header-gerente.php');
         </div>
         
         <div class="col-md-4">
-            <a href="reportes.php" class="text-decoration-none">
+            <a href="ventas.php" class="text-decoration-none">
                 <div class="card stat-card shadow-sm border-0 h-100">
                     <div class="card-body text-center py-4">
                         <div class="stat-icon bg-info bg-opacity-10 text-info mx-auto mb-3">
                             <i class="bi bi-graph-up"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Reportes</h5>
+                        <h5 class="fw-bold mb-2">Ventas</h5>
                         <p class="text-muted small mb-0">
                             Estadísticas y análisis de ventas
                         </p>

@@ -42,13 +42,12 @@ $meses = [];
 for ($i = 11; $i >= 0; $i--) {
     $mes = date('Y-m', strtotime("-$i months"));
     $mes_nombre = date('M', strtotime("-$i months"));
-    
-    $query = "SELECT COALESCE(SUM(total), 0) as total 
-              FROM pedidos 
-              WHERE DATE_FORMAT(fecha_pedido, '%Y-%m') = '$mes'";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-    
+
+    $stmt_v = mysqli_prepare($conn, "SELECT COALESCE(SUM(total), 0) as total FROM pedidos WHERE DATE_FORMAT(fecha_pedido, '%Y-%m') = ?");
+    mysqli_stmt_bind_param($stmt_v, 's', $mes);
+    mysqli_stmt_execute($stmt_v);
+    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_v));
+
     $meses[] = ucfirst($mes_nombre);
     $ventas_mensuales[] = floatval($row['total']);
 }
@@ -337,6 +336,21 @@ window.dashboardData = {
         colores: <?php echo json_encode($categorias_colores); ?>
     }
 };
+
+// Inicializar gráficos
+document.addEventListener('DOMContentLoaded', function () {
+    GraficoVentas.crear(
+        'ventasChart',
+        window.dashboardData.ventasMensuales.meses,
+        window.dashboardData.ventasMensuales.ventas
+    );
+    GraficoCategorias.crear(
+        'categoriasChart',
+        window.dashboardData.categorias.nombres,
+        window.dashboardData.categorias.valores,
+        window.dashboardData.categorias.colores
+    );
+});
 </script>
 
 <!-- Nota: El código JavaScript para gráficos ya está en ../js/graficos.js -->

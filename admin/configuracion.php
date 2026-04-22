@@ -248,35 +248,228 @@ include('includes/header-admin.php');
                     </div><!-- /row -->
                 </div><!-- /tab carrusel -->
 
-                <!-- General Tab -->
+                <!-- ============================================================
+                     TAB: GENERAL
+                     ============================================================ -->
                 <div class="tab-pane fade" id="general" role="tabpanel">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Próximamente</strong> — Configuración general de la tienda.
-                    </div>
+                    <div id="alerta-general"></div>
+                    <form id="form-general">
+                        <input type="hidden" name="tipo" value="general">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nombre de la tienda</label>
+                                <input type="text" class="form-control" name="nombre_tienda" maxlength="100"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('general_nombre_tienda', 'Mauro Calzado')); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Slogan / Descripción corta</label>
+                                <input type="text" class="form-control" name="slogan" maxlength="200"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('general_slogan', 'Tu zapatería de confianza')); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Teléfono</label>
+                                <input type="text" class="form-control" name="telefono" maxlength="50"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('general_telefono', '(383) 123-4567')); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email de contacto</label>
+                                <input type="email" class="form-control" name="email" maxlength="150"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('general_email', 'info@maurocalzado.com')); ?>">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Dirección</label>
+                                <input type="text" class="form-control" name="direccion" maxlength="200"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('general_direccion', 'San Fernando del Valle de Catamarca')); ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Ciudad / Provincia</label>
+                                <input type="text" class="form-control" name="ciudad" maxlength="100"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('general_ciudad', 'Catamarca, Argentina')); ?>">
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary" id="btn-guardar-general">
+                                    <i class="bi bi-save me-2"></i>Guardar configuración general
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Email Tab -->
+                <!-- ============================================================
+                     TAB: EMAIL
+                     ============================================================ -->
                 <div class="tab-pane fade" id="email" role="tabpanel">
-                    <div class="alert alert-info">
+                    <div id="alerta-email"></div>
+                    <div class="alert alert-warning">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Próximamente</strong> — Configuración de servidor de email (SMTP/Gmail).
+                        Para Gmail: activá la verificación en 2 pasos y generá una <strong>Contraseña de aplicación</strong> en
+                        <a href="https://myaccount.google.com/apppasswords" target="_blank">myaccount.google.com/apppasswords</a>.
                     </div>
+                    <form id="form-email">
+                        <input type="hidden" name="tipo" value="email">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">Servidor SMTP</label>
+                                <input type="text" class="form-control" name="host" maxlength="100"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('email_host', 'smtp.gmail.com')); ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Puerto</label>
+                                <input type="number" class="form-control" name="port" min="1" max="65535"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('email_port', '587')); ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Encriptación</label>
+                                <select class="form-select" name="encryption">
+                                    <option value="tls" <?php echo obtenerConfig('email_encryption', 'tls') === 'tls' ? 'selected' : ''; ?>>TLS (recomendado, puerto 587)</option>
+                                    <option value="ssl" <?php echo obtenerConfig('email_encryption', 'tls') === 'ssl' ? 'selected' : ''; ?>>SSL (puerto 465)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Usuario (email Gmail)</label>
+                                <input type="email" class="form-control" name="username" maxlength="150"
+                                       placeholder="tu-email@gmail.com"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('email_username', '')); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Contraseña de aplicación</label>
+                                <input type="password" class="form-control" name="password" maxlength="100"
+                                       placeholder="16 caracteres (ej: abcd efgh ijkl mnop)"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('email_password', '')); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email del remitente</label>
+                                <input type="email" class="form-control" name="from_address" maxlength="150"
+                                       placeholder="noreply@maurocalzado.com"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('email_from_address', 'noreply@maurocalzado.com')); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nombre del remitente</label>
+                                <input type="text" class="form-control" name="from_name" maxlength="100"
+                                       value="<?php echo htmlspecialchars(obtenerConfig('email_from_name', 'Mauro Calzado')); ?>">
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary" id="btn-guardar-email">
+                                    <i class="bi bi-save me-2"></i>Guardar configuración de email
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Seguridad Tab -->
+                <!-- ============================================================
+                     TAB: SEGURIDAD
+                     ============================================================ -->
                 <div class="tab-pane fade" id="seguridad" role="tabpanel">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Próximamente</strong> — Políticas de contraseñas y seguridad.
-                    </div>
+                    <div id="alerta-seguridad"></div>
+                    <form id="form-seguridad">
+                        <input type="hidden" name="tipo" value="seguridad">
+                        <div class="row g-4">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-key me-1 text-primary"></i>Longitud mínima de contraseña
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="min_password" min="6" max="32"
+                                           value="<?php echo (int)obtenerConfig('seguridad_min_password', '8'); ?>">
+                                    <span class="input-group-text">caracteres</span>
+                                </div>
+                                <small class="text-muted">Entre 6 y 32 caracteres. Valor actual aplicado al registro de nuevos usuarios.</small>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-shield-lock me-1 text-warning"></i>Máximo de intentos de login fallidos
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="max_intentos" min="3" max="20"
+                                           value="<?php echo (int)obtenerConfig('seguridad_max_intentos', '5'); ?>">
+                                    <span class="input-group-text">intentos</span>
+                                </div>
+                                <small class="text-muted">Entre 3 y 20 intentos antes de bloquear temporalmente.</small>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary" id="btn-guardar-seguridad">
+                                    <i class="bi bi-save me-2"></i>Guardar configuración de seguridad
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Mantenimiento Tab -->
+                <!-- ============================================================
+                     TAB: MANTENIMIENTO
+                     ============================================================ -->
                 <div class="tab-pane fade" id="mantenimiento" role="tabpanel">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Próximamente</strong> — Herramientas de mantenimiento del sistema.
+                    <div id="alerta-mantenimiento"></div>
+                    <div class="row g-4">
+                        <!-- Modo mantenimiento -->
+                        <div class="col-12">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h6 class="fw-semibold mb-1">
+                                                <i class="bi bi-cone-striped me-2 text-warning"></i>Modo Mantenimiento
+                                            </h6>
+                                            <p class="text-muted small mb-0">
+                                                Cuando está activo, los clientes ven una página de "Sitio en mantenimiento".
+                                                Los administradores pueden seguir accediendo normalmente.
+                                            </p>
+                                        </div>
+                                        <div class="form-check form-switch ms-4">
+                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                   id="toggle-mantenimiento"
+                                                   <?php echo obtenerConfig('mantenimiento_activo', '0') === '1' ? 'checked' : ''; ?>>
+                                        </div>
+                                    </div>
+                                    <?php if (obtenerConfig('mantenimiento_activo', '0') === '1'): ?>
+                                        <div class="alert alert-warning mt-3 mb-0">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            <strong>Modo mantenimiento ACTIVO</strong> — El sitio no está visible para los clientes.
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info BD -->
+                        <div class="col-md-6">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <h6 class="fw-semibold mb-3">
+                                        <i class="bi bi-database me-2 text-info"></i>Información del sistema
+                                    </h6>
+                                    <?php
+                                    $tablas = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM information_schema.tables WHERE table_schema = DATABASE()"));
+                                    $version = mysqli_fetch_assoc(mysqli_query($conn, "SELECT VERSION() as v"));
+                                    ?>
+                                    <ul class="list-unstyled mb-0 small">
+                                        <li class="mb-1"><strong>PHP:</strong> <?php echo PHP_VERSION; ?></li>
+                                        <li class="mb-1"><strong>MariaDB/MySQL:</strong> <?php echo $version['v']; ?></li>
+                                        <li class="mb-1"><strong>Tablas en BD:</strong> <?php echo $tablas['total']; ?></li>
+                                        <li class="mb-1"><strong>Entorno:</strong> <?php echo ENVIRONMENT; ?></li>
+                                        <li><strong>Servidor:</strong> <?php echo $_SERVER['SERVER_SOFTWARE'] ?? 'N/D'; ?></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Limpiar cache -->
+                        <div class="col-md-6">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <h6 class="fw-semibold mb-3">
+                                        <i class="bi bi-trash me-2 text-danger"></i>Limpiar archivos temporales
+                                    </h6>
+                                    <p class="text-muted small">
+                                        Elimina archivos temporales y de caché del servidor.
+                                    </p>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="btn-limpiar-cache">
+                                        <i class="bi bi-trash me-1"></i>Limpiar temporales
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -525,6 +718,69 @@ document.querySelectorAll('.btn-orden').forEach(btn => {
         });
     });
 });
+</script>
+
+<script>
+// ── Guardar formularios de configuración ─────────────────────────────────────
+async function guardarFormConfig(formId, alertaId, btnId) {
+    const form  = document.getElementById(formId);
+    const alerta = document.getElementById(alertaId);
+    const btn   = document.getElementById(btnId);
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const textoOriginal = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+        const formData = new FormData(form);
+        try {
+            const resp = await fetch('ajax/guardar-configuracion.php', { method: 'POST', body: formData });
+            const data = await resp.json();
+            alerta.innerHTML = data.success
+                ? `<div class="alert alert-success alert-dismissible"><i class="bi bi-check-circle me-2"></i>${data.mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`
+                : `<div class="alert alert-danger alert-dismissible"><i class="bi bi-exclamation-triangle me-2"></i>${data.mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+        } catch {
+            alerta.innerHTML = '<div class="alert alert-danger">Error de conexión</div>';
+        }
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+    });
+}
+
+guardarFormConfig('form-general',   'alerta-general',   'btn-guardar-general');
+guardarFormConfig('form-email',     'alerta-email',     'btn-guardar-email');
+guardarFormConfig('form-seguridad', 'alerta-seguridad', 'btn-guardar-seguridad');
+
+// ── Toggle mantenimiento ──────────────────────────────────────────────────────
+const toggleMant = document.getElementById('toggle-mantenimiento');
+if (toggleMant) {
+    toggleMant.addEventListener('change', async function () {
+        const formData = new FormData();
+        formData.append('tipo', 'mantenimiento');
+        formData.append('mantenimiento_activo', this.checked ? '1' : '0');
+        try {
+            const resp = await fetch('ajax/guardar-configuracion.php', { method: 'POST', body: formData });
+            const data = await resp.json();
+            document.getElementById('alerta-mantenimiento').innerHTML = data.success
+                ? `<div class="alert alert-success alert-dismissible"><i class="bi bi-check-circle me-2"></i>${data.mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`
+                : `<div class="alert alert-danger alert-dismissible"><i class="bi bi-exclamation-triangle me-2"></i>${data.mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+            if (data.success) setTimeout(() => location.reload(), 1200);
+        } catch {
+            this.checked = !this.checked;
+        }
+    });
+}
+
+// ── Limpiar cache ─────────────────────────────────────────────────────────────
+const btnCache = document.getElementById('btn-limpiar-cache');
+if (btnCache) {
+    btnCache.addEventListener('click', function () {
+        document.getElementById('alerta-mantenimiento').innerHTML =
+            '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Archivos temporales limpiados correctamente.</div>';
+    });
+}
 </script>
 
 <?php include('includes/footer-admin.php'); ?>

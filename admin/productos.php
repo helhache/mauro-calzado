@@ -378,11 +378,15 @@ require_once('includes/header-admin.php');
                                 
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <button class="btn btn-outline-primary" onclick="editarProducto(<?php echo $producto['id']; ?>)" 
+                                        <button class="btn btn-outline-primary" onclick="editarProducto(<?php echo $producto['id']; ?>)"
                                                 title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger" onclick="eliminarProducto(<?php echo $producto['id']; ?>)" 
+                                        <button class="btn btn-outline-success" onclick="abrirGaleria(<?php echo $producto['id']; ?>, '<?php echo htmlspecialchars(addslashes($producto['nombre'])); ?>')"
+                                                title="Galería de imágenes">
+                                            <i class="bi bi-images"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="eliminarProducto(<?php echo $producto['id']; ?>)"
                                                 title="Eliminar">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -664,6 +668,195 @@ require_once('includes/header-admin.php');
 </style>
 
 <?php require_once('includes/footer-admin.php'); ?>
+
+<!-- Modal Galería de Imágenes -->
+<div class="modal fade" id="modalGaleria" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-images me-2"></i>Galería de imágenes — <span id="galeria-nombre-producto"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alerta-galeria"></div>
+
+                <!-- Imágenes actuales -->
+                <div class="mb-4">
+                    <h6 class="fw-semibold mb-3">Imágenes adicionales actuales</h6>
+                    <div id="galeria-imagenes" class="row g-3">
+                        <div class="col-12 text-center text-muted py-3" id="galeria-vacia">
+                            <i class="bi bi-images fs-2 d-block mb-2"></i>Sin imágenes adicionales
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Subir nueva imagen -->
+                <h6 class="fw-semibold mb-3">Agregar imagen</h6>
+                <form id="form-subir-imagen" enctype="multipart/form-data">
+                    <input type="hidden" id="galeria-producto-id" name="producto_id">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label">Imagen <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" name="imagen" id="input-imagen-galeria"
+                                   accept="image/jpeg,image/png,image/webp,image/gif" required>
+                            <small class="text-muted">JPG, PNG o WebP — máx 5 MB</small>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success w-100" id="btn-subir-imagen">
+                                <i class="bi bi-upload me-1"></i>Subir imagen
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Galería de imágenes ───────────────────────────────────────────────────────
+let galeriaProductoId = null;
+
+function abrirGaleria(productoId, nombreProducto) {
+    galeriaProductoId = productoId;
+    document.getElementById('galeria-producto-id').value = productoId;
+    document.getElementById('galeria-nombre-producto').textContent = nombreProducto;
+    document.getElementById('alerta-galeria').innerHTML = '';
+    document.getElementById('form-subir-imagen').reset();
+    cargarGaleria(productoId);
+    new bootstrap.Modal(document.getElementById('modalGaleria')).show();
+}
+
+async function cargarGaleria(productoId) {
+    const contenedor = document.getElementById('galeria-imagenes');
+    contenedor.innerHTML = '<div class="col-12 text-center py-3"><span class="spinner-border text-primary"></span></div>';
+
+    try {
+        const resp = await fetch(`../ajax/obtener-galeria-producto.php?producto_id=${productoId}`);
+        const data = await resp.json();
+
+        if (!data.success || data.imagenes.length === 0) {
+            contenedor.innerHTML = '<div class="col-12 text-center text-muted py-3"><i class="bi bi-images fs-2 d-block mb-2"></i>Sin imágenes adicionales</div>';
+            return;
+        }
+
+        contenedor.innerHTML = data.imagenes.map((img, idx) => `
+            <div class="col-md-4 col-6 galeria-item" data-id="${img.id}">
+                <div class="card border position-relative">
+                    <img src="../img/productos/${img.imagen}" class="card-img-top"
+                         style="height:140px;object-fit:cover;"
+                         onerror="this.src='../img/banner-prueba.jpg'" alt="Imagen ${idx+1}">
+                    <div class="card-body p-2 d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-secondary flex-grow-1 btn-orden-img" data-dir="up" title="Subir" ${idx===0?'disabled':''}>
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary flex-grow-1 btn-orden-img" data-dir="down" title="Bajar" ${idx===data.imagenes.length-1?'disabled':''}>
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger flex-grow-1 btn-eliminar-img" data-id="${img.id}" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Eventos eliminar
+        contenedor.querySelectorAll('.btn-eliminar-img').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                if (!confirm('¿Eliminar esta imagen?')) return;
+                const id = parseInt(this.dataset.id);
+                try {
+                    const resp = await fetch('../ajax/eliminar-imagen-galeria.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    const data = await resp.json();
+                    if (data.success) {
+                        cargarGaleria(galeriaProductoId);
+                    } else {
+                        alert('Error: ' + data.mensaje);
+                    }
+                } catch { alert('Error de conexión'); }
+            });
+        });
+
+        // Eventos reordenar
+        contenedor.querySelectorAll('.btn-orden-img').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const item  = this.closest('.galeria-item');
+                const items = [...contenedor.querySelectorAll('.galeria-item')];
+                const idx   = items.indexOf(item);
+                const dir   = this.dataset.dir;
+
+                if (dir === 'up'   && idx === 0)              return;
+                if (dir === 'down' && idx === items.length-1) return;
+
+                if (dir === 'up') {
+                    contenedor.insertBefore(item, items[idx-1]);
+                } else {
+                    contenedor.insertBefore(items[idx+1], item);
+                }
+
+                const nuevoOrden = [...contenedor.querySelectorAll('.galeria-item')].map(el => parseInt(el.dataset.id));
+                try {
+                    await fetch('../ajax/reordenar-imagenes-galeria.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orden: nuevoOrden })
+                    });
+                } catch {}
+
+                // Actualizar botones disabled
+                const itemsAct = [...contenedor.querySelectorAll('.galeria-item')];
+                itemsAct.forEach((el, i) => {
+                    el.querySelector('[data-dir="up"]').disabled   = i === 0;
+                    el.querySelector('[data-dir="down"]').disabled = i === itemsAct.length-1;
+                });
+            });
+        });
+
+    } catch {
+        contenedor.innerHTML = '<div class="col-12"><div class="alert alert-danger">Error al cargar las imágenes</div></div>';
+    }
+}
+
+// Subir imagen
+document.getElementById('form-subir-imagen').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-subir-imagen');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Subiendo...';
+
+    const formData = new FormData(this);
+    try {
+        const resp = await fetch('../ajax/subir-imagen-galeria.php', { method: 'POST', body: formData });
+        const data = await resp.json();
+        const alerta = document.getElementById('alerta-galeria');
+
+        if (data.success) {
+            alerta.innerHTML = `<div class="alert alert-success alert-dismissible"><i class="bi bi-check-circle me-2"></i>${data.mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+            this.reset();
+            cargarGaleria(galeriaProductoId);
+        } else {
+            alerta.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>${data.mensaje}</div>`;
+        }
+    } catch {
+        document.getElementById('alerta-galeria').innerHTML = '<div class="alert alert-danger">Error de conexión</div>';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-upload me-1"></i>Subir imagen';
+});
+</script>
 
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

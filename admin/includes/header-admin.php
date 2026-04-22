@@ -76,6 +76,13 @@ if (!defined('DB_HOST')) {
             </a>
         </li>
         
+        <li>
+            <a href="cajas.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'cajas.php' ? 'active' : ''; ?>">
+                <i class="bi bi-cash-register"></i>
+                <span>Cajas / Turnos</span>
+            </a>
+        </li>
+
         <li class="menu-label">OTROS</li>
         
         <li>

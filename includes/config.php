@@ -344,4 +344,41 @@ function bloquearAcceso($roles_permitidos, $mensaje_error = null) {
 // CONEXIÓN GLOBAL
 // ============================================================================
 $conn = conectarDB();
+
+// ============================================================================
+// TABLA CONFIGURACIÓN (auto-crear)
+// ============================================================================
+mysqli_query($conn,
+    "CREATE TABLE IF NOT EXISTS `configuracion` (
+      `id`         int(11)      NOT NULL AUTO_INCREMENT,
+      `clave`      varchar(100) NOT NULL,
+      `valor`      text         DEFAULT NULL,
+      `updated_at` timestamp    NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `clave` (`clave`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci"
+);
+
+/**
+ * Obtener valor de configuración
+ */
+function obtenerConfig($clave, $default = '') {
+    global $conn;
+    $stmt = mysqli_prepare($conn, "SELECT valor FROM configuracion WHERE clave = ?");
+    mysqli_stmt_bind_param($stmt, 's', $clave);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    return ($row && $row['valor'] !== null) ? $row['valor'] : $default;
+}
+
+/**
+ * Guardar valor de configuración
+ */
+function guardarConfig($clave, $valor) {
+    global $conn;
+    $stmt = mysqli_prepare($conn, "INSERT INTO configuracion (clave, valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE valor = VALUES(valor)");
+    mysqli_stmt_bind_param($stmt, 'ss', $clave, $valor);
+    return mysqli_stmt_execute($stmt);
+}
 ?>
