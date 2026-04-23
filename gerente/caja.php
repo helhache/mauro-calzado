@@ -476,6 +476,7 @@ include('includes/header-gerente.php');
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 // AUTOCOMPLETADO DE PRODUCTOS
 let timeoutBusqueda;
@@ -618,7 +619,7 @@ document.getElementById('formNuevaVenta')?.addEventListener('submit', function(e
     if (productoSeleccionado && productoSeleccionado.stock > 0) {
         const cantidad = parseInt(formData.get('cantidad'));
         if (cantidad > productoSeleccionado.stock) {
-            alert(`Stock insuficiente. Disponible: ${productoSeleccionado.stock} pares`);
+            Swal.fire('Stock insuficiente', `Disponible: ${productoSeleccionado.stock} pares`, 'warning');
             return;
         }
     }
@@ -631,10 +632,10 @@ document.getElementById('formNuevaVenta')?.addEventListener('submit', function(e
     .then(data => {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalNuevaVenta')).hide();
-            alert('Venta registrada exitosamente');
-            location.reload();
+            Swal.fire({ icon: 'success', title: 'Venta registrada', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
         } else {
-            alert(data.message || 'Error al registrar venta');
+            Swal.fire('Error', data.message || 'Error al registrar venta', 'error');
         }
     });
 });
@@ -806,21 +807,30 @@ document.getElementById('formAbrirTurno')?.addEventListener('submit', function(e
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert('Turno abierto exitosamente');
-            location.reload();
+            Swal.fire({ icon: 'success', title: 'Turno abierto', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
         } else {
-            alert(data.message || 'Error al abrir turno');
+            Swal.fire('Error', data.message || 'Error al abrir turno', 'error');
         }
     });
 });
 
-document.getElementById('formCerrarTurno')?.addEventListener('submit', function(e) {
+document.getElementById('formCerrarTurno')?.addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!confirm('¿Estás seguro de cerrar el turno? Esta acción no se puede deshacer.')) return;
-    
+    const confirm = await Swal.fire({
+        title: '¿Cerrar turno?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cerrar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    });
+    if (!confirm.isConfirmed) return;
+
     const formData = new FormData(this);
     formData.append('turno_id', '<?php echo $turno_actual['id'] ?? ''; ?>');
-    
+
     fetch('ajax/cerrar-turno.php', {
         method: 'POST',
         body: formData
@@ -828,10 +838,10 @@ document.getElementById('formCerrarTurno')?.addEventListener('submit', function(
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert('Turno cerrado exitosamente');
-            location.reload();
+            Swal.fire({ icon: 'success', title: 'Turno cerrado', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
         } else {
-            alert(data.message || 'Error al cerrar turno');
+            Swal.fire('Error', data.message || 'Error al cerrar turno', 'error');
         }
     });
 });
@@ -849,10 +859,10 @@ document.getElementById('formNuevaVenta')?.addEventListener('submit', function(e
     .then(data => {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalNuevaVenta')).hide();
-            alert('Venta registrada exitosamente');
-            location.reload();
+            Swal.fire({ icon: 'success', title: 'Venta registrada', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
         } else {
-            alert(data.message || 'Error al registrar venta');
+            Swal.fire('Error', data.message || 'Error al registrar venta', 'error');
         }
     });
 });
@@ -870,10 +880,10 @@ document.getElementById('formCobroCuota')?.addEventListener('submit', function(e
     .then(data => {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalCobroCuota')).hide();
-            alert('Cobro registrado exitosamente');
-            location.reload();
+            Swal.fire({ icon: 'success', title: 'Cobro registrado', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
         } else {
-            alert(data.message || 'Error al registrar cobro');
+            Swal.fire('Error', data.message || 'Error al registrar cobro', 'error');
         }
     });
 });
@@ -891,10 +901,10 @@ document.getElementById('formGasto')?.addEventListener('submit', function(e) {
     .then(data => {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalGasto')).hide();
-            alert('Gasto registrado exitosamente');
-            location.reload();
+            Swal.fire({ icon: 'success', title: 'Gasto registrado', timer: 1500, showConfirmButton: false })
+                .then(() => location.reload());
         } else {
-            alert(data.message || 'Error al registrar gasto');
+            Swal.fire('Error', data.message || 'Error al registrar gasto', 'error');
         }
     });
 });

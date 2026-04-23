@@ -398,6 +398,8 @@ require_once('includes/header-gerente.php');
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../js/graficos.js"></script>
 
 <?php
 require_once('includes/footer-gerente.php');

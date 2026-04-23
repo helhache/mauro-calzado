@@ -157,14 +157,14 @@ require_once('includes/header.php');
                         <div class="col-3">
                             <img src="img/productos/<?php echo htmlspecialchars($producto['imagen']); ?>"
                                  class="img-thumbnail miniatura-producto active cursor-pointer"
-                                 onclick="cambiarImagenPrincipal(this.src)">
+                                >
                         </div>
                         <!-- Miniaturas de galería -->
                         <?php foreach ($imagenes_galeria as $img_gal): ?>
                             <div class="col-3">
                                 <img src="img/productos/<?php echo htmlspecialchars($img_gal['imagen']); ?>"
                                      class="img-thumbnail miniatura-producto cursor-pointer"
-                                     onclick="cambiarImagenPrincipal(this.src)">
+                                    >
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -247,7 +247,7 @@ require_once('includes/header.php');
                 
                 <!-- FORMULARIO DE COMPRA -->
                 <form id="form-agregar-carrito">
-                    <input type="hidden" name="producto_id" value="<?php echo $producto['id']; ?>">
+                    <input type="hidden" name="producto_id" id="producto_id" value="<?php echo $producto['id']; ?>">
                     
                     <!-- Selector de Color -->
                     <?php if (!empty($producto['colores'])): 
@@ -329,7 +329,7 @@ require_once('includes/header.php');
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Cantidad</label>
                         <div class="input-group cantidad-selector">
-                            <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(-1)">
+                            <button class="btn btn-outline-secondary" type="button" data-action="decrementar">
                                 <i class="bi bi-dash"></i>
                             </button>
                             <input type="number"
@@ -340,7 +340,7 @@ require_once('includes/header.php');
                                    min="1"
                                    max="<?php echo $producto['stock']; ?>"
                                    readonly>
-                            <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(1)">
+                            <button class="btn btn-outline-secondary" type="button" data-action="incrementar">
                                 <i class="bi bi-plus"></i>
                             </button>
                         </div>

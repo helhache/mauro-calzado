@@ -707,6 +707,10 @@ require_once('includes/header.php');
 
 <?php require_once('includes/footer.php'); ?>
 
+<!-- Scripts -->
+<script src="js/main.js"></script>
+<script src="js/validaciones.js"></script>
+
 <script>
 // Mostrar/ocultar formulario de envío según tipo de entrega
 document.querySelectorAll('input[name="tipo_entrega"]').forEach(radio => {
@@ -752,43 +756,43 @@ document.getElementById('form-checkout').addEventListener('submit', function(e) 
     
     // Verificar sucursal
     if (!document.querySelector('input[name="sucursal_id"]:checked')) {
-        alert('Por favor selecciona una sucursal');
+        MauroCalzado.mostrarAlerta('Por favor selecciona una sucursal', 'warning');
         e.preventDefault();
         return false;
     }
-    
+
     // Verificar tipo de entrega
     if (!document.querySelector('input[name="tipo_entrega"]:checked')) {
-        alert('Por favor selecciona un tipo de entrega');
+        MauroCalzado.mostrarAlerta('Por favor selecciona un tipo de entrega', 'warning');
         e.preventDefault();
         return false;
     }
-    
+
     // Verificar método de pago
     if (!document.querySelector('input[name="metodo_pago"]:checked')) {
-        alert('Por favor selecciona un método de pago');
+        MauroCalzado.mostrarAlerta('Por favor selecciona un método de pago', 'warning');
         e.preventDefault();
         return false;
     }
-    
+
     // Si es envío, verificar datos
     const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked');
     if (tipoEntrega && tipoEntrega.value === 'envio') {
         const direccion = document.getElementById('direccion').value.trim();
         const ciudad = document.getElementById('ciudad').value.trim();
         const provincia = document.getElementById('provincia').value;
-        
+
         if (!direccion || !ciudad || !provincia) {
-            alert('Por favor completa todos los datos de envío');
+            MauroCalzado.mostrarAlerta('Por favor completa todos los datos de envío', 'warning');
             e.preventDefault();
             return false;
         }
     }
-    
+
     // Verificar teléfono
     const telefono = document.getElementById('telefono').value.trim();
     if (!telefono) {
-        alert('Por favor ingresa un teléfono de contacto');
+        MauroCalzado.mostrarAlerta('Por favor ingresa un teléfono de contacto', 'warning');
         e.preventDefault();
         return false;
     }

@@ -119,7 +119,7 @@ require_once('includes/header.php');
 
                         <!-- Tabla en desktop -->
                         <div class="table-responsive d-none d-md-block">
-                            <table class="table mb-0">
+                            <table class="table mb-0 tabla-carrito">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Producto</th>
@@ -131,7 +131,7 @@ require_once('includes/header.php');
                                 </thead>
                                 <tbody>
                                     <?php foreach ($_SESSION['carrito'] as $producto_id => $item): ?>
-                                        <tr>
+                                        <tr class="fila-producto" data-precio="<?php echo $item['precio']; ?>">
                                             <!-- Producto -->
                                             <td>
                                                 <div class="d-flex align-items-center">
@@ -163,10 +163,8 @@ require_once('includes/header.php');
                                                 <form method="POST" class="d-inline">
                                                     <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
                                                     <div class="input-group input-group-sm" style="width: 120px;">
-                                                        <button class="btn btn-outline-secondary"
-                                                            type="submit"
-                                                            name="actualizar_cantidad"
-                                                            onclick="this.form.cantidad.value = parseInt(this.form.cantidad.value) - 1">
+                                                        <button class="btn btn-outline-secondary btn-decrementar"
+                                                            type="button">
                                                             <i class="bi bi-dash"></i>
                                                         </button>
                                                         <input type="number"
@@ -175,10 +173,8 @@ require_once('includes/header.php');
                                                             value="<?php echo $item['cantidad']; ?>"
                                                             min="1"
                                                             readonly>
-                                                        <button class="btn btn-outline-secondary"
-                                                            type="submit"
-                                                            name="actualizar_cantidad"
-                                                            onclick="this.form.cantidad.value = parseInt(this.form.cantidad.value) + 1">
+                                                        <button class="btn btn-outline-secondary btn-incrementar"
+                                                            type="button">
                                                             <i class="bi bi-plus"></i>
                                                         </button>
                                                     </div>
@@ -186,7 +182,7 @@ require_once('includes/header.php');
                                             </td>
 
                                             <!-- Subtotal -->
-                                            <td class="align-middle fw-bold">
+                                            <td class="align-middle fw-bold subtotal-producto">
                                                 $<?php echo number_format($item['precio'] * $item['cantidad'], 0, ',', '.'); ?>
                                             </td>
 
@@ -196,8 +192,7 @@ require_once('includes/header.php');
                                                     <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
                                                     <button type="submit"
                                                         name="eliminar"
-                                                        class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('¿Eliminar este producto del carrito?')">
+                                                        class="btn btn-sm btn-outline-danger">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
@@ -255,8 +250,7 @@ require_once('includes/header.php');
                     <form method="POST" class="d-inline">
                         <button type="submit"
                             name="vaciar_carrito"
-                            class="btn btn-outline-danger"
-                            onclick="return confirm('¿Estás seguro de vaciar el carrito?')">
+                            class="btn btn-outline-danger">
                             <i class="bi bi-trash me-2"></i>Vaciar Carrito
                         </button>
                     </form>
@@ -271,12 +265,12 @@ require_once('includes/header.php');
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal (<?php echo $cantidad_items; ?> productos):</span>
-                            <strong>$<?php echo number_format($subtotal, 0, ',', '.'); ?></strong>
+                            <strong id="subtotal-carrito">$<?php echo number_format($subtotal, 0, ',', '.'); ?></strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                             <span>Envío:</span>
-                            <strong class="<?php echo $costo_envio == 0 ? 'text-success' : ''; ?>">
+                            <strong id="costo-envio" class="<?php echo $costo_envio == 0 ? 'text-success' : ''; ?>">
                                 <?php if ($costo_envio == 0): ?>
                                     ¡GRATIS!
                                 <?php else: ?>
@@ -285,17 +279,15 @@ require_once('includes/header.php');
                             </strong>
                         </div>
 
-                        <?php if ($subtotal < 50000 && $costo_envio > 0): ?>
-                            <div class="alert alert-info small">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Te faltan <strong>$<?php echo number_format(50000 - $subtotal, 0, ',', '.'); ?></strong>
-                                para envío gratis
-                            </div>
-                        <?php endif; ?>
+                        <div class="alert alert-info small<?php echo ($subtotal < 50000 && $costo_envio > 0) ? '' : ' d-none'; ?>" id="mensaje-envio-gratis">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Te faltan <strong>$<?php echo number_format(50000 - $subtotal, 0, ',', '.'); ?></strong>
+                            para envío gratis
+                        </div>
 
                         <div class="d-flex justify-content-between mb-4">
                             <h5 class="fw-bold">Total:</h5>
-                            <h5 class="fw-bold text-primary">$<?php echo number_format($total, 0, ',', '.'); ?></h5>
+                            <h5 class="fw-bold text-primary" id="total-carrito">$<?php echo number_format($total, 0, ',', '.'); ?></h5>
                         </div>
 
                         <!-- Botón de checkout -->

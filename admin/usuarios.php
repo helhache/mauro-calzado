@@ -725,7 +725,6 @@ require_once('includes/header-admin.php');
 <script src="../js/admin.js"></script>
 
 <!-- Nota: El código JavaScript de usuarios ya está en ../js/admin.js -->
-<!--
 <script>
 // ============================================================================
 // MOSTRAR/OCULTAR SUCURSAL SEGÚN ROL (CREAR)
@@ -1155,7 +1154,7 @@ function toggleSidebar() {
     sidebar.classList.toggle('show');
     backdrop.classList.toggle('show');
 }
-</script> -->
+</script>
 
 <?php
 mysqli_stmt_close($stmt);

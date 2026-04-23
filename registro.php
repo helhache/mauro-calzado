@@ -383,3 +383,26 @@ require_once('includes/header.php');
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="js/main.js"></script>
 <script src="js/validaciones.js"></script>
+<script>
+// Toggle password
+document.getElementById('toggle-password')?.addEventListener('click', function () {
+    const input = document.getElementById('password');
+    const icon = this.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+});
+
+// Validación submit
+document.getElementById('form-registro')?.addEventListener('submit', function (e) {
+    const resultado = FormularioValidator.registro(new FormData(this));
+    if (!resultado.valido) {
+        e.preventDefault();
+        resultado.errores.forEach(error => MauroCalzado.mostrarAlerta(error, 'warning'));
+    }
+});
+</script>
