@@ -647,11 +647,52 @@ require_once('includes/header-gerente.php');
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../js/productos.js"></script>
 
-<!-- Nota: El código JavaScript para productos gerente ya está en ../js/productos.js -->
-<!--
 <script>
+// Compatibilidad jQuery + Bootstrap 5: polyfill para .modal('show'/.hide')
+(function($) {
+    if (typeof bootstrap !== 'undefined' && $.fn) {
+        $.fn.modal = function(action) {
+            this.each(function() {
+                if (action === 'show') {
+                    bootstrap.Modal.getOrCreateInstance(this).show();
+                } else if (action === 'hide') {
+                    bootstrap.Modal.getOrCreateInstance(this).hide();
+                } else if (action === 'toggle') {
+                    bootstrap.Modal.getOrCreateInstance(this).toggle();
+                }
+            });
+            return this;
+        };
+    }
+})(jQuery);
+
+// ============================================================================
+// MOSTRAR MENSAJES
+// ============================================================================
+function mostrarMensaje(mensaje, tipo) {
+    const iconos = {
+        'success': 'check-circle',
+        'danger': 'exclamation-triangle',
+        'warning': 'exclamation-circle',
+        'info': 'info-circle'
+    };
+
+    const html = `
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            <i class="bi bi-${iconos[tipo] || 'info-circle'} me-2"></i>${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+
+    $('#mensaje-container').html(html);
+    $('html, body').animate({ scrollTop: 0 }, 300);
+
+    setTimeout(function () {
+        $('.alert').alert('close');
+    }, 5000);
+}
+
 // ============================================================================
 // CAMBIAR ESTADO (ACTIVO/INACTIVO)
 // ============================================================================
@@ -690,7 +731,7 @@ function editarPrecio(id, nombre, precio) {
 
 $('#formEditarPrecio').on('submit', function(e) {
     e.preventDefault();
-    
+
     $.ajax({
         url: 'ajax/editar-precio-producto.php',
         type: 'POST',
@@ -700,7 +741,7 @@ $('#formEditarPrecio').on('submit', function(e) {
             if (response.success) {
                 mostrarMensaje(response.message, 'success');
                 $('#modalEditarPrecio').modal('hide');
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(function() { location.reload(); }, 1500);
             } else {
                 mostrarMensaje(response.message, 'danger');
             }
@@ -736,7 +777,7 @@ function toggleStockOperacion() {
 
 $('#formActualizarStock').on('submit', function(e) {
     e.preventDefault();
-    
+
     $.ajax({
         url: 'ajax/actualizar-stock.php',
         type: 'POST',
@@ -746,7 +787,7 @@ $('#formActualizarStock').on('submit', function(e) {
             if (response.success) {
                 mostrarMensaje(response.message, 'success');
                 $('#modalActualizarStock').modal('hide');
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(function() { location.reload(); }, 1500);
             } else {
                 mostrarMensaje(response.message, 'danger');
             }
@@ -773,15 +814,16 @@ function darBaja(id, nombre, stock) {
 
 $('#formDarBaja').on('submit', function(e) {
     e.preventDefault();
-    
+
     const cantidad = parseInt($('#baja_cantidad').val());
-    const stockActual = parseInt($('#baja_stock_actual').val());
-    
+    const stockStr = $('#baja_stock_actual').val().replace(' unidades', '');
+    const stockActual = parseInt(stockStr);
+
     if (cantidad > stockActual) {
         mostrarMensaje('La cantidad no puede ser mayor al stock disponible', 'danger');
         return;
     }
-    
+
     $.ajax({
         url: 'ajax/dar-baja-producto.php',
         type: 'POST',
@@ -791,7 +833,7 @@ $('#formDarBaja').on('submit', function(e) {
             if (response.success) {
                 mostrarMensaje(response.message, 'success');
                 $('#modalDarBaja').modal('hide');
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(function() { location.reload(); }, 1500);
             } else {
                 mostrarMensaje(response.message, 'danger');
             }
@@ -810,35 +852,32 @@ function activarPromocion(id, nombre, enPromocion) {
     $('#promo_producto_nombre').val(nombre);
     $('#promo_estado_actual').val(enPromocion);
     $('#promo_motivo').val('');
-    
+
     if (enPromocion == 1) {
-        // Ya está en promoción - desactivar
         $('#promo_activar_section').hide();
         $('#btnPromocion').text('Desactivar Promoción').removeClass('btn-primary').addClass('btn-secondary');
     } else {
-        // Activar promoción
         $('#promo_activar_section').show();
         $('#promo_descuento').val('');
         $('#btnPromocion').text('Activar Promoción').removeClass('btn-secondary').addClass('btn-primary');
     }
-    
+
     $('#modalPromocion').modal('show');
 }
 
 $('#formPromocion').on('submit', function(e) {
     e.preventDefault();
-    
+
     const enPromocion = $('#promo_estado_actual').val();
-    
+
     if (enPromocion == 0) {
-        // Validar descuento
         const descuento = parseInt($('#promo_descuento').val());
         if (!descuento || descuento < 1 || descuento > 100) {
             mostrarMensaje('El descuento debe estar entre 1% y 100%', 'danger');
             return;
         }
     }
-    
+
     $.ajax({
         url: 'ajax/activar-promocion.php',
         type: 'POST',
@@ -848,7 +887,7 @@ $('#formPromocion').on('submit', function(e) {
             if (response.success) {
                 mostrarMensaje(response.message, 'success');
                 $('#modalPromocion').modal('hide');
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(function() { location.reload(); }, 1500);
             } else {
                 mostrarMensaje(response.message, 'danger');
             }
@@ -858,30 +897,4 @@ $('#formPromocion').on('submit', function(e) {
         }
     });
 });
-
-// ============================================================================
-// FUNCIÓN PARA MOSTRAR MENSAJES
-// ============================================================================
-function mostrarMensaje(mensaje, tipo) {
-    const iconos = {
-        'success': 'check-circle',
-        'danger': 'exclamation-triangle',
-        'warning': 'exclamation-circle',
-        'info': 'info-circle'
-    };
-    
-    const html = `
-        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-            <i class="bi bi-${iconos[tipo]} me-2"></i>${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    $('#mensaje-container').html(html);
-    $('html, body').animate({ scrollTop: 0 }, 300);
-    
-    setTimeout(() => {
-        $('.alert').alert('close');
-    }, 5000);
-}
-</script> -->
+</script>

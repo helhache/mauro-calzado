@@ -3,18 +3,18 @@
  * MUJER.PHP - CATÁLOGO DE CALZADO FEMENINO (VERSIÓN CON TARJETA UNIFICADA)
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Calzado Hombre";
 
 // PARÁMETROS DE FILTRADO Y ORDENAMIENTO
-$orden = $_GET['orden'] ?? 'recientes';
+$orden = $_GET['orden'] ?? 'nombre';
 $precio_min = isset($_GET['precio_min']) ? floatval($_GET['precio_min']) : 0;
 $precio_max = isset($_GET['precio_max']) ? floatval($_GET['precio_max']) : 999999;
 $busqueda = isset($_GET['q']) ? limpiarDato($_GET['q']) : '';
 
 // PAGINACIÓN
 $pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
-$productos_por_pagina = 12;
+$productos_por_pagina = 10;
 $offset = ($pagina_actual - 1) * $productos_por_pagina;
 
 // CONSTRUIR QUERY
@@ -45,8 +45,9 @@ if (!empty($busqueda)) {
 }
 
 // Ordenamiento
-$order_by = "p.fecha_creacion DESC";
+$order_by = "p.nombre ASC";
 switch ($orden) {
+    case 'recientes': $order_by = "p.fecha_creacion DESC"; break;
     case 'precio_asc': $order_by = "p.precio ASC"; break;
     case 'precio_desc': $order_by = "p.precio DESC"; break;
     case 'nombre': $order_by = "p.nombre ASC"; break;
@@ -98,7 +99,7 @@ if (!empty($params)) {
 mysqli_stmt_execute($stmt_productos);
 $result_productos = mysqli_stmt_get_result($stmt_productos);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <?php
@@ -106,14 +107,14 @@ $banner_modo              = 'fondo';
 $banner_altura            = '350px';
 $banner_overlay_titulo    = 'CALZADO HOMBRE';
 $banner_overlay_subtitulo = 'Estilo y confort para cada ocasión';
-require_once('includes/banner-carousel.php');
+require_once('../includes/banner-carousel.php');
 ?>
 
 <!-- BREADCRUMB -->
 <div class="container mt-3">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="index.php">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo BASE_PATH; ?>index.php">Inicio</a></li>
             <li class="breadcrumb-item active" aria-current="page">Hombre</li>
         </ol>
     </nav>
@@ -202,7 +203,7 @@ require_once('includes/banner-carousel.php');
                         while ($producto = mysqli_fetch_assoc($result_productos)) {
                             ?>
                             <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                                <?php include('includes/componentes/tarjeta-producto.php'); ?>
+                                <?php include('../includes/componentes/tarjeta-producto.php'); ?>
                             </div>
                             <?php
                         }
@@ -260,7 +261,7 @@ require_once('includes/banner-carousel.php');
 
 <?php
 mysqli_stmt_close($stmt_productos);
-require_once('includes/footer.php');
+require_once('../includes/footer.php');
 ?>
 
 <script>

@@ -181,13 +181,13 @@ require_once('includes/header-admin.php');
                                         <?php if ($r['aprobada'] == 0): ?>
                                             <a href="reviews.php?aprobar=<?php echo $r['id']; ?>&filtro=<?php echo $filtro; ?>"
                                                class="btn btn-sm btn-success me-1"
-                                               onclick="return confirm('¿Aprobar esta reseña?')">
+                                               data-confirm="¿Aprobar esta reseña?" data-confirm-tipo="success" data-confirm-ok="Sí, aprobar" data-confirm-titulo="Aprobar reseña">
                                                 <i class="bi bi-check-lg"></i> Aprobar
                                             </a>
                                         <?php endif; ?>
                                         <a href="reviews.php?eliminar=<?php echo $r['id']; ?>&filtro=<?php echo $filtro; ?>"
                                            class="btn btn-sm btn-danger"
-                                           onclick="return confirm('¿Eliminar esta reseña? Esta acción no se puede deshacer.')">
+                                           data-confirm="¿Eliminar esta reseña? Esta acción no se puede deshacer." data-confirm-tipo="danger" data-confirm-ok="Sí, eliminar" data-confirm-titulo="Eliminar reseña">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>

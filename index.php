@@ -63,43 +63,45 @@ require_once('includes/header.php');
 
             <!-- BENEFICIO 1: Envío Gratis -->
             <div class="col-lg-3 col-md-6 mb-4">
-                <div class="p-4">
-                    <i class="bi bi-truck fs-1 text-primary mb-3"></i>
-                    <!-- 
-                        bi-truck: Icono de camión
-                        fs-1: Font size extra grande
-                        text-primary: Color azul
-                    -->
+                <div class="card h-100 border-0 shadow-sm p-4 text-center beneficio-card">
+                    <div class="beneficio-icon-wrap bg-primary bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:70px;height:70px;">
+                        <i class="bi bi-truck fs-2 text-primary"></i>
+                    </div>
                     <h5 class="fw-bold">Envío Gratis</h5>
-                    <p class="text-muted">En compras superiores a $50.000</p>
-                    <!-- text-muted: Texto gris (Bootstrap) -->
+                    <p class="text-muted mb-0">En compras superiores a $50.000</p>
                 </div>
             </div>
 
             <!-- BENEFICIO 2: Pagos Seguros -->
             <div class="col-lg-3 col-md-6 mb-4">
-                <div class="p-4">
-                    <i class="bi bi-shield-check fs-1 text-success mb-3"></i>
+                <div class="card h-100 border-0 shadow-sm p-4 text-center beneficio-card">
+                    <div class="beneficio-icon-wrap bg-success bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:70px;height:70px;">
+                        <i class="bi bi-shield-check fs-2 text-success"></i>
+                    </div>
                     <h5 class="fw-bold">Pagos Seguros</h5>
-                    <p class="text-muted">Múltiples métodos de pago</p>
+                    <p class="text-muted mb-0">Múltiples métodos de pago</p>
                 </div>
             </div>
 
             <!-- BENEFICIO 3: Cambios Fáciles -->
             <div class="col-lg-3 col-md-6 mb-4">
-                <div class="p-4">
-                    <i class="bi bi-arrow-repeat fs-1 text-danger mb-3"></i>
+                <div class="card h-100 border-0 shadow-sm p-4 text-center beneficio-card">
+                    <div class="beneficio-icon-wrap bg-danger bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:70px;height:70px;">
+                        <i class="bi bi-arrow-repeat fs-2 text-danger"></i>
+                    </div>
                     <h5 class="fw-bold">Cambios Fáciles</h5>
-                    <p class="text-muted">30 días para cambios y devoluciones</p>
+                    <p class="text-muted mb-0">30 días para cambios y devoluciones</p>
                 </div>
             </div>
 
             <!-- BENEFICIO 4: Atención al Cliente -->
             <div class="col-lg-3 col-md-6 mb-4">
-                <div class="p-4">
-                    <i class="bi bi-headset fs-1 text-warning mb-3"></i>
+                <div class="card h-100 border-0 shadow-sm p-4 text-center beneficio-card">
+                    <div class="beneficio-icon-wrap bg-warning bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:70px;height:70px;">
+                        <i class="bi bi-headset fs-2 text-warning"></i>
+                    </div>
                     <h5 class="fw-bold">Atención 24/7</h5>
-                    <p class="text-muted">Estamos para ayudarte siempre</p>
+                    <p class="text-muted mb-0">Estamos para ayudarte siempre</p>
                 </div>
             </div>
         </div>
@@ -155,7 +157,7 @@ require_once('includes/header.php');
                 <div class="col-12 text-center py-5">
                     <i class="bi bi-inbox fs-1 text-muted"></i>
                     <p class="text-muted mt-3">No hay productos en promoción en este momento.</p>
-                    <a href="mujer.php" class="btn btn-primary">Ver Catálogo Completo</a>
+                    <a href="<?php echo BASE_PATH; ?>catalogo/mujer.php" class="btn btn-primary">Ver Catálogo Completo</a>
                 </div>
             <?php
             }
@@ -204,7 +206,7 @@ require_once('includes/header.php');
                     <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white">
                         <h3 class="fw-bold mb-2">MUJER</h3>
                         <p class="mb-3">Elegancia y comodidad en cada paso</p>
-                        <a href="mujer.php" class="btn btn-light">
+                        <a href="<?php echo BASE_PATH; ?>catalogo/mujer.php" class="btn btn-light">
                             Ver Colección
                             <i class="bi bi-arrow-right ms-2"></i>
                         </a>
@@ -226,7 +228,7 @@ require_once('includes/header.php');
                     <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white">
                         <h3 class="fw-bold mb-2">HOMBRE</h3>
                         <p class="mb-3">Estilo y confort para cada ocasión</p>
-                        <a href="hombre.php" class="btn btn-light">
+                        <a href="<?php echo BASE_PATH; ?>catalogo/hombre.php" class="btn btn-light">
                             Ver Colección
                             <i class="bi bi-arrow-right ms-2"></i>
                         </a>
@@ -248,7 +250,7 @@ require_once('includes/header.php');
                     <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white">
                         <h3 class="fw-bold mb-2">INFANTIL</h3>
                         <p class="mb-3">Calzado cómodo para los más pequeños</p>
-                        <a href="infantiles.php" class="btn btn-light">
+                        <a href="<?php echo BASE_PATH; ?>catalogo/infantiles.php" class="btn btn-light">
                             Ver Colección
                             <i class="bi bi-arrow-right ms-2"></i>
                         </a>
@@ -268,4 +270,3 @@ require_once('includes/footer.php');
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/main.js"></script>

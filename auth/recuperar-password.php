@@ -10,8 +10,8 @@
  * - Token válido por 1 hora
  */
 
-require_once('includes/config.php');
-require_once('includes/email-config.php');
+require_once('../includes/config.php');
+require_once('../includes/email-config.php');
 
 $titulo_pagina = "Recuperar Contraseña";
 
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['recuperar'])) {
     }
 }
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -204,7 +204,7 @@ require_once('includes/header.php');
                     <!-- Links adicionales -->
                     <div class="text-center">
                         <p class="mb-2">
-                            <a href="login.php" class="text-decoration-none">
+                            <a href="<?php echo BASE_PATH; ?>login.php" class="text-decoration-none">
                                 <i class="bi bi-arrow-left me-1"></i>
                                 Volver al Login
                             </a>
@@ -212,7 +212,7 @@ require_once('includes/header.php');
                         <p class="mb-0">
                             <small class="text-muted">
                                 ¿No tienes cuenta?
-                                <a href="registro.php" class="text-primary">Regístrate aquí</a>
+                                <a href="<?php echo BASE_PATH; ?>registro.php" class="text-primary">Regístrate aquí</a>
                             </small>
                         </p>
                     </div>
@@ -238,4 +238,4 @@ require_once('includes/header.php');
     </div>
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

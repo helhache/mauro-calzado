@@ -49,7 +49,7 @@ unset($banner_modo, $banner_altura, $banner_overlay_titulo, $banner_overlay_subt
 // Fallback: si no hay slides, mostrar banner estático con imagen original
 if (empty($_slides)) {
     ?>
-    <section class="hero-banner" style="background-image: url('<?php echo (strpos($_SERVER['PHP_SELF'], '/admin') !== false ? '../' : ''); ?>img/banner-prueba.jpg'); height: <?php echo htmlspecialchars($_altura); ?>;">
+    <section class="hero-banner" style="background-image: url('<?php echo BASE_PATH; ?>img/banner-prueba.jpg'); height: <?php echo htmlspecialchars($_altura); ?>;">
         <div class="hero-content">
             <?php if ($_titulo): ?>
                 <h1 class="display-3 fw-bold"><?php echo htmlspecialchars($_titulo); ?></h1>
@@ -69,7 +69,7 @@ if (empty($_slides)) {
 }
 
 $_carousel_id = 'bannerCarrusel_' . substr(md5($_SERVER['PHP_SELF']), 0, 6);
-$_img_prefix  = (strpos($_SERVER['REQUEST_URI'], '/admin') !== false || strpos($_SERVER['REQUEST_URI'], '/gerente') !== false) ? '../' : '';
+$_img_prefix  = BASE_PATH;
 ?>
 
 <!-- CARRUSEL BANNER -->

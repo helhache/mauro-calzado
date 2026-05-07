@@ -16,7 +16,7 @@
  * - Checkout simple y directo
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Carrito de Compras";
 
 // Inicializar carrito si no existe
@@ -29,26 +29,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Eliminar producto
     if (isset($_POST['eliminar'])) {
-        $producto_id = intval($_POST['producto_id']);
-        unset($_SESSION['carrito'][$producto_id]);
-
-        // También eliminar de BD si está logueado
-        if (estaLogueado()) {
-            $stmt = mysqli_prepare($conn, "DELETE FROM carrito WHERE usuario_id = ? AND producto_id = ?");
-            mysqli_stmt_bind_param($stmt, "ii", $_SESSION['usuario_id'], $producto_id);
-            mysqli_stmt_execute($stmt);
+        $item_key = $_POST['item_key'] ?? '';
+        if ($item_key !== '' && isset($_SESSION['carrito'][$item_key])) {
+            $producto_id = intval($_SESSION['carrito'][$item_key]['id']);
+            unset($_SESSION['carrito'][$item_key]);
+            if (estaLogueado()) {
+                $stmt = mysqli_prepare($conn, "DELETE FROM carrito WHERE usuario_id = ? AND producto_id = ?");
+                mysqli_stmt_bind_param($stmt, "ii", $_SESSION['usuario_id'], $producto_id);
+                mysqli_stmt_execute($stmt);
+            }
         }
     }
 
     // Actualizar cantidad
     if (isset($_POST['actualizar_cantidad'])) {
-        $producto_id = intval($_POST['producto_id']);
+        $item_key = $_POST['item_key'] ?? '';
         $nueva_cantidad = intval($_POST['cantidad']);
-
-        if ($nueva_cantidad > 0 && isset($_SESSION['carrito'][$producto_id])) {
-            $_SESSION['carrito'][$producto_id]['cantidad'] = $nueva_cantidad;
-
-            // Actualizar en BD si está logueado
+        if ($item_key !== '' && $nueva_cantidad > 0 && isset($_SESSION['carrito'][$item_key])) {
+            $_SESSION['carrito'][$item_key]['cantidad'] = $nueva_cantidad;
+            $producto_id = intval($_SESSION['carrito'][$item_key]['id']);
             if (estaLogueado()) {
                 $stmt = mysqli_prepare($conn, "UPDATE carrito SET cantidad = ? WHERE usuario_id = ? AND producto_id = ?");
                 mysqli_stmt_bind_param($stmt, "iii", $nueva_cantidad, $_SESSION['usuario_id'], $producto_id);
@@ -82,7 +81,7 @@ foreach ($_SESSION['carrito'] as $item) {
 $costo_envio = $subtotal >= 50000 ? 0 : 5000;
 $total = $subtotal + $costo_envio;
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -103,7 +102,7 @@ require_once('includes/header.php');
             <i class="bi bi-cart-x display-1 text-muted"></i>
             <h3 class="mt-4">Tu carrito está vacío</h3>
             <p class="text-muted">¡Empieza a agregar productos!</p>
-            <a href="index.php" class="btn btn-primary btn-lg mt-3">
+            <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-primary btn-lg mt-3">
                 <i class="bi bi-shop me-2"></i>Continuar Comprando
             </a>
         </div>
@@ -119,7 +118,7 @@ require_once('includes/header.php');
 
                         <!-- Tabla en desktop -->
                         <div class="table-responsive d-none d-md-block">
-                            <table class="table mb-0 tabla-carrito">
+                            <table class="table mb-0">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Producto</th>
@@ -130,24 +129,22 @@ require_once('includes/header.php');
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($_SESSION['carrito'] as $producto_id => $item): ?>
-                                        <tr class="fila-producto" data-precio="<?php echo $item['precio']; ?>">
+                                    <?php foreach ($_SESSION['carrito'] as $item_key => $item): ?>
+                                        <tr>
                                             <!-- Producto -->
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <img src="img/productos/<?php echo $item['imagen']; ?>"
+                                                    <img src="img/productos/<?php echo htmlspecialchars($item['imagen']); ?>"
                                                         alt="<?php echo htmlspecialchars($item['nombre']); ?>"
                                                         width="80"
                                                         class="rounded me-3">
                                                     <div>
-                                                        <h6 class="mb-1">
-                                                            <?php echo htmlspecialchars($item['nombre']); ?>
-                                                        </h6>
-                                                        <?php if (isset($item['color']) && $item['color']): ?>
-                                                            <small class="text-muted">Color: <?php echo $item['color']; ?></small><br>
+                                                        <h6 class="mb-1"><?php echo htmlspecialchars($item['nombre']); ?></h6>
+                                                        <?php if (!empty($item['color'])): ?>
+                                                            <small class="text-muted d-block"><i class="bi bi-circle-fill me-1" style="font-size:.6rem;"></i>Color: <?php echo htmlspecialchars($item['color']); ?></small>
                                                         <?php endif; ?>
-                                                        <?php if (isset($item['talle']) && $item['talle']): ?>
-                                                            <small class="text-muted">Talle: <?php echo $item['talle']; ?></small>
+                                                        <?php if (!empty($item['talle'])): ?>
+                                                            <small class="text-muted d-block"><i class="bi bi-rulers me-1"></i>Talle: <?php echo htmlspecialchars($item['talle']); ?></small>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
@@ -161,10 +158,12 @@ require_once('includes/header.php');
                                             <!-- Cantidad -->
                                             <td class="align-middle">
                                                 <form method="POST" class="d-inline">
-                                                    <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
+                                                    <input type="hidden" name="item_key" value="<?php echo htmlspecialchars($item_key); ?>">
                                                     <div class="input-group input-group-sm" style="width: 120px;">
-                                                        <button class="btn btn-outline-secondary btn-decrementar"
-                                                            type="button">
+                                                        <button class="btn btn-outline-secondary"
+                                                            type="submit"
+                                                            name="actualizar_cantidad"
+                                                            onclick="if(parseInt(this.form.cantidad.value)>1){this.form.cantidad.value=parseInt(this.form.cantidad.value)-1;}else{return false;}">
                                                             <i class="bi bi-dash"></i>
                                                         </button>
                                                         <input type="number"
@@ -173,8 +172,10 @@ require_once('includes/header.php');
                                                             value="<?php echo $item['cantidad']; ?>"
                                                             min="1"
                                                             readonly>
-                                                        <button class="btn btn-outline-secondary btn-incrementar"
-                                                            type="button">
+                                                        <button class="btn btn-outline-secondary"
+                                                            type="submit"
+                                                            name="actualizar_cantidad"
+                                                            onclick="this.form.cantidad.value=parseInt(this.form.cantidad.value)+1">
                                                             <i class="bi bi-plus"></i>
                                                         </button>
                                                     </div>
@@ -182,17 +183,18 @@ require_once('includes/header.php');
                                             </td>
 
                                             <!-- Subtotal -->
-                                            <td class="align-middle fw-bold subtotal-producto">
+                                            <td class="align-middle fw-bold">
                                                 $<?php echo number_format($item['precio'] * $item['cantidad'], 0, ',', '.'); ?>
                                             </td>
 
                                             <!-- Eliminar -->
                                             <td class="align-middle">
                                                 <form method="POST" class="d-inline">
-                                                    <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
+                                                    <input type="hidden" name="item_key" value="<?php echo htmlspecialchars($item_key); ?>">
                                                     <button type="submit"
                                                         name="eliminar"
-                                                        class="btn btn-sm btn-outline-danger">
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        data-confirm="¿Eliminar este producto del carrito?" data-confirm-tipo="danger" data-confirm-ok="Sí, eliminar" data-confirm-titulo="Eliminar producto">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
@@ -205,29 +207,31 @@ require_once('includes/header.php');
 
                         <!-- Cards en móvil -->
                         <div class="d-md-none p-3">
-                            <?php foreach ($_SESSION['carrito'] as $producto_id => $item): ?>
+                            <?php foreach ($_SESSION['carrito'] as $item_key => $item): ?>
                                 <div class="card mb-3">
                                     <div class="card-body">
                                         <div class="d-flex">
-                                            <img src="img/productos/<?php echo $item['imagen']; ?>"
+                                            <img src="img/productos/<?php echo htmlspecialchars($item['imagen']); ?>"
                                                 alt="<?php echo htmlspecialchars($item['nombre']); ?>"
                                                 width="80"
                                                 class="rounded me-3">
                                             <div class="flex-grow-1">
                                                 <h6><?php echo htmlspecialchars($item['nombre']); ?></h6>
-                                                <?php if (isset($item['color'])): ?>
-                                                    <small class="text-muted d-block">Color: <?php echo $item['color']; ?></small>
+                                                <?php if (!empty($item['color'])): ?>
+                                                    <small class="text-muted d-block">Color: <?php echo htmlspecialchars($item['color']); ?></small>
                                                 <?php endif; ?>
-                                                <?php if (isset($item['talle'])): ?>
-                                                    <small class="text-muted d-block">Talle: <?php echo $item['talle']; ?></small>
+                                                <?php if (!empty($item['talle'])): ?>
+                                                    <small class="text-muted d-block">Talle: <?php echo htmlspecialchars($item['talle']); ?></small>
                                                 <?php endif; ?>
                                                 <p class="mb-2 mt-2">
                                                     <strong>$<?php echo number_format($item['precio'], 0, ',', '.'); ?></strong>
-                                                    <span class="text-muted">x <?php echo $item['cantidad']; ?></span>
+                                                    <span class="text-muted"> × <?php echo $item['cantidad']; ?></span>
+                                                    <strong class="ms-2">= $<?php echo number_format($item['precio'] * $item['cantidad'], 0, ',', '.'); ?></strong>
                                                 </p>
                                                 <form method="POST" class="d-inline">
-                                                    <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
-                                                    <button type="submit" name="eliminar" class="btn btn-sm btn-outline-danger">
+                                                    <input type="hidden" name="item_key" value="<?php echo htmlspecialchars($item_key); ?>">
+                                                    <button type="submit" name="eliminar" class="btn btn-sm btn-outline-danger"
+                                                        data-confirm="¿Eliminar este producto del carrito?" data-confirm-tipo="danger" data-confirm-ok="Sí, eliminar" data-confirm-titulo="Eliminar producto">
                                                         <i class="bi bi-trash"></i> Eliminar
                                                     </button>
                                                 </form>
@@ -243,14 +247,15 @@ require_once('includes/header.php');
 
                 <!-- Botones de acción -->
                 <div class="d-flex justify-content-between mt-3">
-                    <a href="index.php" class="btn btn-outline-secondary">
+                    <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-2"></i>Seguir Comprando
                     </a>
 
                     <form method="POST" class="d-inline">
                         <button type="submit"
                             name="vaciar_carrito"
-                            class="btn btn-outline-danger">
+                            class="btn btn-outline-danger"
+                            data-confirm="¿Estás seguro de vaciar el carrito?" data-confirm-tipo="danger" data-confirm-ok="Sí, vaciar" data-confirm-titulo="Vaciar carrito">
                             <i class="bi bi-trash me-2"></i>Vaciar Carrito
                         </button>
                     </form>
@@ -265,12 +270,12 @@ require_once('includes/header.php');
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal (<?php echo $cantidad_items; ?> productos):</span>
-                            <strong id="subtotal-carrito">$<?php echo number_format($subtotal, 0, ',', '.'); ?></strong>
+                            <strong>$<?php echo number_format($subtotal, 0, ',', '.'); ?></strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                             <span>Envío:</span>
-                            <strong id="costo-envio" class="<?php echo $costo_envio == 0 ? 'text-success' : ''; ?>">
+                            <strong class="<?php echo $costo_envio == 0 ? 'text-success' : ''; ?>">
                                 <?php if ($costo_envio == 0): ?>
                                     ¡GRATIS!
                                 <?php else: ?>
@@ -279,28 +284,30 @@ require_once('includes/header.php');
                             </strong>
                         </div>
 
-                        <div class="alert alert-info small<?php echo ($subtotal < 50000 && $costo_envio > 0) ? '' : ' d-none'; ?>" id="mensaje-envio-gratis">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Te faltan <strong>$<?php echo number_format(50000 - $subtotal, 0, ',', '.'); ?></strong>
-                            para envío gratis
-                        </div>
+                        <?php if ($subtotal < 50000 && $costo_envio > 0): ?>
+                            <div class="alert alert-info small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Te faltan <strong>$<?php echo number_format(50000 - $subtotal, 0, ',', '.'); ?></strong>
+                                para envío gratis
+                            </div>
+                        <?php endif; ?>
 
                         <div class="d-flex justify-content-between mb-4">
                             <h5 class="fw-bold">Total:</h5>
-                            <h5 class="fw-bold text-primary" id="total-carrito">$<?php echo number_format($total, 0, ',', '.'); ?></h5>
+                            <h5 class="fw-bold text-primary">$<?php echo number_format($total, 0, ',', '.'); ?></h5>
                         </div>
 
                         <!-- Botón de checkout -->
                         <?php if (estaLogueado()): ?>
-                            <a href="checkout.php" class="btn btn-primary w-100 btn-lg mb-3">
+                            <a href="<?php echo BASE_PATH; ?>compras/checkout.php" class="btn btn-primary w-100 btn-lg mb-3">
                                 <i class="bi bi-credit-card me-2"></i>Proceder al Pago
                             </a>
                         <?php else: ?>
-                            <a href="login.php?redirect=checkout.php" class="btn btn-primary w-100 btn-lg mb-3">
+                            <a href="<?php echo BASE_PATH; ?>login.php?redirect=<?php echo urlencode(BASE_PATH . 'compras/checkout.php'); ?>" class="btn btn-primary w-100 btn-lg mb-3">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Inicia Sesión para Continuar
                             </a>
                             <p class="small text-muted text-center mb-3">
-                                ¿No tienes cuenta? <a href="registro.php">Regístrate aquí</a>
+                                ¿No tienes cuenta? <a href="<?php echo BASE_PATH; ?>registro.php">Regístrate aquí</a>
                             </p>
                         <?php endif; ?>
 
@@ -349,9 +356,7 @@ require_once('includes/header.php');
     <?php endif; ?>
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/main.js"></script>
 <script src="js/carrito.js"></script>

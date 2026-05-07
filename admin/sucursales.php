@@ -381,8 +381,6 @@ include('includes/header-admin.php');
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
 // Búsqueda en tiempo real
 document.getElementById('buscarSucursal').addEventListener('input', function() {
@@ -463,7 +461,7 @@ function editarSucursal(id) {
                 
                 new bootstrap.Modal(document.getElementById('modalSucursal')).show();
             } else {
-                Swal.fire('Error', 'Error al cargar datos de la sucursal', 'error');
+                MC.alert('Error al cargar datos de la sucursal', 'danger');
             }
         });
 }
@@ -482,39 +480,35 @@ document.getElementById('formSucursal').addEventListener('submit', function(e) {
     .then(data => {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalSucursal')).hide();
-            Swal.fire({ icon: 'success', title: 'Guardado', text: 'Sucursal guardada exitosamente', timer: 1500, showConfirmButton: false })
-                .then(() => location.reload());
+            MC.alert('Sucursal guardada exitosamente', 'success');
+            location.reload();
         } else {
-            Swal.fire('Error', data.message || 'Error al guardar la sucursal', 'error');
+            MC.alert(data.message || 'Error al guardar la sucursal', 'danger');
         }
     })
     .catch(err => {
         console.error(err);
-        Swal.fire('Error', 'Error al procesar la solicitud', 'error');
+        MC.alert('Error al procesar la solicitud', 'danger');
     });
 });
 
-async function cambiarEstado(id, nuevoEstado) {
-    const result = await Swal.fire({
-        title: '¿Cambiar estado de esta sucursal?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, cambiar',
-        cancelButtonText: 'Cancelar'
-    });
-    if (!result.isConfirmed) return;
-
-    const data = await fetch('ajax/cambiar-estado-sucursal.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: id, activo: nuevoEstado})
-    }).then(r => r.json());
-
-    if (data.success) {
-        location.reload();
-    } else {
-        Swal.fire('Error', data.message || 'Error al cambiar estado', 'error');
-    }
+function cambiarEstado(id, nuevoEstado) {
+    MC.confirm('¿Estás seguro de cambiar el estado de esta sucursal?', function(ok) {
+        if (!ok) return;
+        fetch('ajax/cambiar-estado-sucursal.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: id, activo: nuevoEstado})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                MC.alert(data.message || 'Error al cambiar estado', 'danger');
+            }
+        });
+    }, { tipo: 'warning', titulo: 'Cambiar estado', btnOk: 'Sí, cambiar' });
 }
 
 function verEstadisticas(id) {

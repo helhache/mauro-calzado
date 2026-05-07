@@ -11,7 +11,7 @@ if (!defined('DB_HOST')) {
 // Si no está logueado, redirigir a login
 if (!estaLogueado()) {
     $_SESSION['mensaje_error'] = "Debes iniciar sesión para acceder";
-    redirigir('login.php');
+    redirigir(SITE_URL . 'login.php');
 }
 
 // Si no es cliente, bloquear

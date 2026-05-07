@@ -6,9 +6,9 @@
  * conforme a la Ley 25.326 de Protección de Datos Personales de Argentina
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Política de Privacidad";
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -396,4 +396,4 @@ require_once('includes/header.php');
     </div>
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

@@ -9,8 +9,8 @@
  * - Marcar mensajes como leídos
  */
 
-require_once('includes/config.php');
-require_once('includes/verificar-cliente.php');
+require_once('../includes/config.php');
+require_once('../includes/verificar-cliente.php');
 
 $titulo_pagina = "Mensajes";
 $usuario_id = $_SESSION['usuario_id'];
@@ -68,7 +68,7 @@ if (isset($_GET['marcar_leido'])) {
     mysqli_stmt_execute($stmt_leer);
     mysqli_stmt_close($stmt_leer);
     
-    redirigir('mensajes-internos.php');
+    redirigir(SITE_URL . 'cuenta/mensajes-internos.php');
 }
 
 // OBTENER MENSAJES DEL CLIENTE
@@ -99,7 +99,7 @@ $result_pedidos = mysqli_stmt_get_result($stmt_pedidos);
 $pedidos_usuario = mysqli_fetch_all($result_pedidos, MYSQLI_ASSOC);
 mysqli_stmt_close($stmt_pedidos);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -345,4 +345,4 @@ require_once('includes/header.php');
     
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

@@ -53,10 +53,11 @@ const CarritoManager = {
         const botonesEliminar = document.querySelectorAll('button[name="eliminar"]');
         botonesEliminar.forEach(boton => {
             boton.addEventListener('click', function (e) {
-                const confirmacion = confirm('¿Eliminar este producto del carrito?');
-                if (!confirmacion) {
-                    e.preventDefault();
-                }
+                e.preventDefault();
+                var form = this.closest('form');
+                MC.confirm('¿Eliminar este producto del carrito?', function(ok) {
+                    if (ok && form) form.submit();
+                }, { tipo: 'danger', titulo: 'Eliminar producto', btnOk: 'Sí, eliminar' });
             });
         });
 
@@ -64,10 +65,11 @@ const CarritoManager = {
         const botonVaciar = document.querySelector('button[name="vaciar_carrito"]');
         if (botonVaciar) {
             botonVaciar.addEventListener('click', function (e) {
-                const confirmacion = confirm('¿Estás seguro de vaciar el carrito? Esta acción no se puede deshacer.');
-                if (!confirmacion) {
-                    e.preventDefault();
-                }
+                e.preventDefault();
+                var form = this.closest('form');
+                MC.confirm('¿Estás seguro de vaciar el carrito? Esta acción no se puede deshacer.', function(ok) {
+                    if (ok && form) form.submit();
+                }, { tipo: 'danger', titulo: 'Vaciar carrito', btnOk: 'Sí, vaciar' });
             });
         }
 

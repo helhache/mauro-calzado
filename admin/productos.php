@@ -770,22 +770,24 @@ async function cargarGaleria(productoId) {
 
         // Eventos eliminar
         contenedor.querySelectorAll('.btn-eliminar-img').forEach(btn => {
-            btn.addEventListener('click', async function () {
-                if (!confirm('¿Eliminar esta imagen?')) return;
+            btn.addEventListener('click', function () {
                 const id = parseInt(this.dataset.id);
-                try {
-                    const resp = await fetch('../ajax/eliminar-imagen-galeria.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id })
-                    });
-                    const data = await resp.json();
-                    if (data.success) {
-                        cargarGaleria(galeriaProductoId);
-                    } else {
-                        alert('Error: ' + data.mensaje);
-                    }
-                } catch { alert('Error de conexión'); }
+                MC.confirm('¿Eliminar esta imagen?', async function(ok) {
+                    if (!ok) return;
+                    try {
+                        const resp = await fetch('../ajax/eliminar-imagen-galeria.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id })
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            cargarGaleria(galeriaProductoId);
+                        } else {
+                            MC.alert('Error: ' + data.mensaje, 'danger');
+                        }
+                    } catch { MC.alert('Error de conexión', 'danger'); }
+                }, { tipo: 'danger', titulo: 'Eliminar imagen', btnOk: 'Sí, eliminar' });
             });
         });
 
@@ -934,7 +936,7 @@ function agregarColorPersonalizado() {
             coloresPersonalizados.push(colorFormateado);
             generarColores();
         } else {
-            alert('Este color ya existe en la lista');
+            MC.alert('Este color ya existe en la lista', 'warning');
         }
     }
 }
@@ -1178,7 +1180,8 @@ function cambiarEstado(id, activo) {
 // ELIMINAR PRODUCTO
 // ============================================================================
 function eliminarProducto(id) {
-    if (confirm('¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.')) {
+    MC.confirm('¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.', function(ok) {
+        if (!ok) return;
         $.ajax({
             url: '../ajax/eliminar-producto.php',
             type: 'POST',
@@ -1196,7 +1199,7 @@ function eliminarProducto(id) {
                 mostrarMensaje('Error al eliminar el producto', 'danger');
             }
         });
-    }
+    }, { tipo: 'danger', titulo: 'Eliminar producto', btnOk: 'Sí, eliminar' });
 }
 
 // ============================================================================

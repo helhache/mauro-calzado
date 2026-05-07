@@ -10,8 +10,8 @@
  * - Descargar comprobante (futuro)
  */
 
-require_once('includes/config.php');
-require_once('includes/verificar-cliente.php');
+require_once('../includes/config.php');
+require_once('../includes/verificar-cliente.php');
 
 $titulo_pagina = "Mis Pedidos";
 $usuario_id = $_SESSION['usuario_id'];
@@ -58,7 +58,7 @@ function obtenerEstiloEstado($estado) {
     return $estilos[$estado] ?? ['icono' => 'circle', 'clase' => 'secondary', 'texto' => $estado];
 }
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -119,7 +119,7 @@ require_once('includes/header.php');
             <i class="bi bi-bag-x display-1 text-muted"></i>
             <h3 class="mt-4">No tienes pedidos aún</h3>
             <p class="text-muted">Comienza a explorar nuestro catálogo</p>
-            <a href="index.php" class="btn btn-primary btn-lg mt-3">
+            <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-primary btn-lg mt-3">
                 <i class="bi bi-shop me-2"></i>Ver Productos
             </a>
         </div>
@@ -277,7 +277,7 @@ require_once('includes/header.php');
                                 <?php endif; ?>
                                 
                                 <?php if ($pedido['estado'] == 'entregado'): ?>
-                                    <a href="producto.php?id=<?php echo $detalles[0]['producto_id'] ?? 0; ?>" 
+                                    <a href="<?php echo BASE_PATH; ?>catalogo/producto.php?id=<?php echo $detalles[0]['producto_id'] ?? 0; ?>" 
                                        class="btn btn-outline-success btn-sm">
                                         <i class="bi bi-star me-1"></i>Calificar
                                     </a>
@@ -426,4 +426,4 @@ require_once('includes/header.php');
     
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

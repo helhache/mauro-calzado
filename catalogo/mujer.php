@@ -3,22 +3,22 @@
  * MUJER.PHP - CATÁLOGO DE CALZADO FEMENINO (VERSIÓN CON TARJETA UNIFICADA)
  */
 
-require_once('includes/config.php');
-$titulo_pagina = "Calzado Infantil";
+require_once('../includes/config.php');
+$titulo_pagina = "Calzado Mujer";
 
 // PARÁMETROS DE FILTRADO Y ORDENAMIENTO
-$orden = $_GET['orden'] ?? 'recientes';
+$orden = $_GET['orden'] ?? 'nombre';
 $precio_min = isset($_GET['precio_min']) ? floatval($_GET['precio_min']) : 0;
 $precio_max = isset($_GET['precio_max']) ? floatval($_GET['precio_max']) : 999999;
 $busqueda = isset($_GET['q']) ? limpiarDato($_GET['q']) : '';
 
 // PAGINACIÓN
 $pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
-$productos_por_pagina = 12;
+$productos_por_pagina = 10;
 $offset = ($pagina_actual - 1) * $productos_por_pagina;
 
 // CONSTRUIR QUERY
-$where = ["p.activo = 1", "c.slug = 'infantil'", "p.stock > 0"]; // FILTRO: Solo productos con stock
+$where = ["p.activo = 1", "c.slug = 'mujer'", "p.stock > 0"]; // FILTRO: Solo productos con stock
 $params = [];
 $types = "";
 
@@ -45,8 +45,9 @@ if (!empty($busqueda)) {
 }
 
 // Ordenamiento
-$order_by = "p.fecha_creacion DESC";
+$order_by = "p.nombre ASC";
 switch ($orden) {
+    case 'recientes': $order_by = "p.fecha_creacion DESC"; break;
     case 'precio_asc': $order_by = "p.precio ASC"; break;
     case 'precio_desc': $order_by = "p.precio DESC"; break;
     case 'nombre': $order_by = "p.nombre ASC"; break;
@@ -98,23 +99,23 @@ if (!empty($params)) {
 mysqli_stmt_execute($stmt_productos);
 $result_productos = mysqli_stmt_get_result($stmt_productos);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <?php
 $banner_modo              = 'fondo';
 $banner_altura            = '350px';
-$banner_overlay_titulo    = 'CALZADO INFANTIL';
-$banner_overlay_subtitulo = 'Comodidad y diversión para los más pequeños';
-require_once('includes/banner-carousel.php');
+$banner_overlay_titulo    = 'CALZADO MUJER';
+$banner_overlay_subtitulo = 'Elegancia y comodidad en cada paso';
+require_once('../includes/banner-carousel.php');
 ?>
 
 <!-- BREADCRUMB -->
 <div class="container mt-3">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="index.php">Inicio</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Infantil</li>
+            <li class="breadcrumb-item"><a href="<?php echo BASE_PATH; ?>index.php">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Mujer</li>
         </ol>
     </nav>
 </div>
@@ -126,7 +127,7 @@ require_once('includes/banner-carousel.php');
             
             <!-- SIDEBAR - FILTROS -->
             <div class="col-lg-3 mb-4">
-                <div class="card border-0 shadow-sm sticky-top" style="top: 80px; z-index: 100;">
+                <div class="card border-0 shadow-sm filters-sidebar sticky-top">
                     <div class="card-body">
                         <h5 class="fw-bold mb-4">
                             <i class="bi bi-funnel me-2"></i>Filtros
@@ -161,7 +162,7 @@ require_once('includes/banner-carousel.php');
                             <button type="submit" class="btn btn-primary w-100 mb-2">
                                 <i class="bi bi-search me-2"></i>Aplicar Filtros
                             </button>
-                            <a href="infantiles.php" class="btn btn-outline-secondary w-100">
+                            <a href="mujer.php" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-x-circle me-2"></i>Limpiar Filtros
                             </a>
                         </form>
@@ -196,13 +197,13 @@ require_once('includes/banner-carousel.php');
                 <div class="row">
                     <?php
                     if (mysqli_num_rows($result_productos) > 0) {
-                        // Configurar contexto para la tarjeta
+                        // Configurar contexto para el componente reutilizable
                         $contexto = 'catalogo';
-                        
+
                         while ($producto = mysqli_fetch_assoc($result_productos)) {
                             ?>
                             <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
-                                <?php include('includes/componentes/tarjeta-producto.php'); ?>
+                                <?php include('../includes/componentes/tarjeta-producto.php'); ?>
                             </div>
                             <?php
                         }
@@ -212,7 +213,7 @@ require_once('includes/banner-carousel.php');
                             <i class="bi bi-inbox display-1 text-muted"></i>
                             <h4 class="mt-3">No se encontraron productos</h4>
                             <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
-                            <a href="infantiles.php" class="btn btn-primary">Ver todos los productos</a>
+                            <a href="mujer.php" class="btn btn-primary">Ver todos los productos</a>
                         </div>
                         <?php
                     }
@@ -260,7 +261,7 @@ require_once('includes/banner-carousel.php');
 
 <?php
 mysqli_stmt_close($stmt_productos);
-require_once('includes/footer.php');
+require_once('../includes/footer.php');
 ?>
 
 <script>

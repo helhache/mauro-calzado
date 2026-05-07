@@ -3,7 +3,7 @@
  * BUSCAR.PHP - RESULTADOS DE BÚSQUEDA (VERSIÓN CON TARJETA UNIFICADA)
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 
 // Obtener término de búsqueda
 $busqueda = isset($_GET['q']) ? limpiarDato($_GET['q']) : '';
@@ -36,7 +36,7 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $total_resultados = mysqli_num_rows($result);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-4">
@@ -86,7 +86,7 @@ require_once('includes/header.php');
             while ($producto = mysqli_fetch_assoc($result)): 
             ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <?php include('includes/componentes/tarjeta-producto.php'); ?>
+                    <?php include('../includes/componentes/tarjeta-producto.php'); ?>
                 </div>
             <?php endwhile; ?>
         </div>
@@ -131,5 +131,5 @@ require_once('includes/header.php');
 
 <?php
 mysqli_stmt_close($stmt);
-require_once('includes/footer.php');
+require_once('../includes/footer.php');
 ?>

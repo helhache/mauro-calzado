@@ -46,6 +46,10 @@ define('DB_CHARSET', 'utf8mb4'); // Soporte completo para emojis y caracteres es
 // ============================================================================
 define('SITE_URL', 'http://localhost/mauro-calzado/');
 define('SITE_NAME', 'Mauro Calzado');
+// Ruta raíz relativa al servidor (ej: '/mauro-calzado/'). Usada en HTML para href/src.
+define('BASE_PATH', rtrim(parse_url(SITE_URL, PHP_URL_PATH), '/') . '/');
+// Ruta absoluta del filesystem al directorio raíz del proyecto.
+define('ABSPATH', dirname(__DIR__));
 
 // ============================================================================
 // CONSTANTES DE ROLES
@@ -294,23 +298,23 @@ function tieneAccesoSucursal($sucursal_id) {
  */
 function redirigirSegunRol() {
     if (!estaLogueado()) {
-        redirigir('login.php');
+        redirigir(SITE_URL . 'login.php');
     }
 
     $rol = obtenerRol();
 
     switch($rol) {
         case ROL_ADMIN:
-            redirigir('admin/dashboard.php');
+            redirigir(SITE_URL . 'admin/dashboard.php');
             break;
         case ROL_GERENTE:
-            redirigir('gerente/dashboard.php');
+            redirigir(SITE_URL . 'gerente/dashboard.php');
             break;
         case ROL_CLIENTE:
-            redirigir('index.php');
+            redirigir(SITE_URL . 'index.php');
             break;
         default:
-            redirigir('login.php');
+            redirigir(SITE_URL . 'login.php');
     }
 }
 
@@ -324,7 +328,7 @@ function bloquearAcceso($roles_permitidos, $mensaje_error = null) {
     // Si no está logueado, redirigir a login
     if (!estaLogueado()) {
         $_SESSION['mensaje_error'] = "Debes iniciar sesión para acceder a esta página";
-        redirigir('login.php');
+        redirigir(SITE_URL . 'login.php');
     }
 
     // Si no tiene el rol permitido, bloquear

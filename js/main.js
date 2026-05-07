@@ -13,93 +13,208 @@
 // FUNCIONALIDAD DE CARRITO (CORREGIDA)
 // ===========================================
 
+// Mapa de colores para los círculos del modal
+const MAPA_COLORES = {
+    'Negro':'#000000','Blanco':'#FFFFFF','Rojo':'#DC143C','Azul':'#0047AB',
+    'Gris':'#808080','Marrón':'#8B4513','Beige':'#F5F5DC','Rosa':'#FFC0CB',
+    'Verde':'#228B22','Amarillo':'#FFD700'
+};
+
+// Estado del modal de carrito
+let _modalCarritoData = null;
+
 function inicializarCarrito() {
-    const botonesAgregar = document.querySelectorAll('.btn-add-cart');
-    
-    botonesAgregar.forEach(boton => {
-        boton.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const productoId = this.dataset.id;
-            const productoNombre = this.dataset.nombre;
-            const productoPrecio = parseFloat(this.dataset.precio);
-            const productoImagen = this.dataset.imagen;
-            
-            if (!productoId || !productoNombre || isNaN(productoPrecio)) {
-                mostrarAlerta('Error al agregar el producto', 'danger');
-                return;
-            }
-            
-            const producto = {
-                id: productoId,
-                nombre: productoNombre,
-                precio: productoPrecio,
-                imagen: productoImagen,
-                cantidad: 1
-            };
-            
-            agregarAlCarrito(producto, this);
+    document.addEventListener('click', function(e) {
+        const boton = e.target.closest('.btn-add-cart');
+        if (!boton) return;
+        e.preventDefault();
+
+        const productoId = boton.dataset.id;
+        if (!productoId) return;
+
+        // Cargar info del producto y mostrar modal
+        boton.disabled = true;
+        const textoOriginal = boton.innerHTML;
+        boton.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        fetch(`${window.BASE_URL}ajax/obtener-producto-carrito.php?id=${productoId}`)
+            .then(r => r.json())
+            .then(data => {
+                boton.disabled = false;
+                boton.innerHTML = textoOriginal;
+                if (!data.success) { mostrarAlerta(data.mensaje || 'Error', 'danger'); return; }
+                abrirModalCarrito(data);
+            })
+            .catch(() => {
+                boton.disabled = false;
+                boton.innerHTML = textoOriginal;
+                mostrarAlerta('Error de conexión', 'danger');
+            });
+    });
+
+    // Confirmar desde el modal
+    const btnConfirmar = document.getElementById('btn-confirmar-carrito');
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', confirmarAgregarCarrito);
+    }
+}
+
+function abrirModalCarrito(producto) {
+    _modalCarritoData = { ...producto, colorSeleccionado: null, talleSeleccionado: null };
+
+    document.getElementById('modal-carrito-nombre').textContent = producto.nombre;
+    document.getElementById('modal-carrito-precio').textContent =
+        '$' + new Intl.NumberFormat('es-AR').format(producto.precio);
+
+    const img = document.getElementById('modal-carrito-imagen');
+    img.src = producto.imagen ? `img/productos/${producto.imagen}` : '';
+
+    // Colores
+    const bloqueColor = document.getElementById('modal-bloque-color');
+    const selectorColores = document.getElementById('modal-selector-colores');
+    selectorColores.innerHTML = '';
+    if (producto.colores && producto.colores.length > 0) {
+        bloqueColor.style.display = '';
+        producto.colores.forEach(color => {
+            const codigo = MAPA_COLORES[color] || '#CCCCCC';
+            const div = document.createElement('div');
+            div.className = 'color-option';
+            div.style.backgroundColor = codigo;
+            div.title = color;
+            div.dataset.color = color;
+            div.addEventListener('click', function() {
+                selectorColores.querySelectorAll('.color-option').forEach(el => {
+                    el.style.border = '3px solid #dee2e6';
+                    el.style.transform = 'scale(1)';
+                });
+                this.style.border = '3px solid #0047AB';
+                this.style.transform = 'scale(1.1)';
+                _modalCarritoData.colorSeleccionado = color;
+                document.getElementById('modal-color-texto').textContent = color;
+                document.getElementById('modal-color-texto').className = 'text-success';
+            });
+            selectorColores.appendChild(div);
         });
+    } else {
+        bloqueColor.style.display = 'none';
+    }
+    document.getElementById('modal-color-texto').textContent = 'Seleccioná uno';
+    document.getElementById('modal-color-texto').className = 'text-primary';
+
+    // Talles
+    const bloqueTalle = document.getElementById('modal-bloque-talle');
+    const selectorTalles = document.getElementById('modal-selector-talles');
+    selectorTalles.innerHTML = '';
+    if (producto.talles && producto.talles.length > 0) {
+        bloqueTalle.style.display = '';
+        producto.talles.forEach(talle => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-outline-secondary talle-option';
+            btn.textContent = talle;
+            btn.dataset.talle = talle;
+            btn.addEventListener('click', function() {
+                selectorTalles.querySelectorAll('.talle-option').forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-outline-secondary');
+                });
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-primary');
+                _modalCarritoData.talleSeleccionado = talle;
+                document.getElementById('modal-talle-texto').textContent = talle;
+                document.getElementById('modal-talle-texto').className = 'text-success';
+            });
+            selectorTalles.appendChild(btn);
+        });
+    } else {
+        bloqueTalle.style.display = 'none';
+    }
+    document.getElementById('modal-talle-texto').textContent = 'Seleccioná uno';
+    document.getElementById('modal-talle-texto').className = 'text-primary';
+
+    document.getElementById('modal-carrito-error').classList.add('d-none');
+
+    const modal = new bootstrap.Modal(document.getElementById('modalSeleccionCarrito'));
+    modal.show();
+}
+
+function confirmarAgregarCarrito() {
+    if (!_modalCarritoData) return;
+
+    const errorDiv = document.getElementById('modal-carrito-error');
+    errorDiv.classList.add('d-none');
+
+    // Validar color si el producto tiene colores
+    const selectorColores = document.getElementById('modal-selector-colores');
+    if (selectorColores.children.length > 0 && !_modalCarritoData.colorSeleccionado) {
+        errorDiv.textContent = 'Por favor seleccioná un color.';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+
+    // Validar talle si el producto tiene talles
+    const selectorTalles = document.getElementById('modal-selector-talles');
+    if (selectorTalles.children.length > 0 && !_modalCarritoData.talleSeleccionado) {
+        errorDiv.textContent = 'Por favor seleccioná un talle.';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+
+    const btn = document.getElementById('btn-confirmar-carrito');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agregando...';
+
+    const payload = {
+        id:      _modalCarritoData.id,
+        cantidad: 1,
+        color:   _modalCarritoData.colorSeleccionado || '',
+        talle:   _modalCarritoData.talleSeleccionado || '',
+    };
+
+    fetch(window.BASE_URL + 'ajax/agregar-carrito.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cart-check me-2"></i>Agregar al Carrito';
+
+        if (data.requiere_login) {
+            bootstrap.Modal.getInstance(document.getElementById('modalSeleccionCarrito')).hide();
+            mostrarAlerta(data.mensaje, 'warning');
+            setTimeout(() => { window.location.href = data.redirect || window.BASE_URL + 'login.php'; }, 1500);
+            return;
+        }
+
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('modalSeleccionCarrito')).hide();
+            mostrarAlerta('Producto agregado al carrito', 'success');
+            actualizarContadorCarrito(data.cantidad_total);
+        } else {
+            errorDiv.textContent = data.mensaje || 'Error al agregar';
+            errorDiv.classList.remove('d-none');
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cart-check me-2"></i>Agregar al Carrito';
+        errorDiv.textContent = 'Error de conexión. Intentá de nuevo.';
+        errorDiv.classList.remove('d-none');
     });
 }
 
-/**
- * CORRECCIÓN: Agregar producto al carrito con validación de login
- */
 function agregarAlCarrito(producto, boton) {
-    // Deshabilitar botón temporalmente
-    boton.disabled = true;
-    const textoOriginal = boton.innerHTML;
-    boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agregando...';
-    
-    fetch('ajax/agregar-carrito.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(producto)
-    })
-    .then(response => response.json())
-    .then(data => {
-        boton.disabled = false;
-        boton.innerHTML = textoOriginal;
-        
-        // CORRECCIÓN: Verificar si requiere login
-        if (data.requiere_login) {
-            mostrarAlerta(data.mensaje, 'warning');
-            
-            // Mostrar modal de confirmación
-            if (confirm('¿Deseas crear una cuenta o iniciar sesión para agregar productos al carrito?')) {
-                window.location.href = data.redirect;
-            }
-            return;
-        }
-        
-        if (data.success) {
-            // CORRECCIÓN: Alerta mejorada con icono
-            mostrarAlerta('✓ ' + data.mensaje, 'success');
-            actualizarContadorCarrito(data.cantidad_total);
-            
-            // Efecto visual en el botón
-            const icono = boton.querySelector('i');
-            if (icono) {
-                const iconoOriginal = icono.className;
-                icono.className = 'bi bi-check-circle-fill me-2';
-                
-                setTimeout(() => {
-                    icono.className = iconoOriginal;
-                }, 2000);
-            }
-        } else {
-            mostrarAlerta(data.mensaje || 'Error al agregar producto', 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        boton.disabled = false;
-        boton.innerHTML = textoOriginal;
-        mostrarAlerta('Error de conexión. Intenta nuevamente.', 'danger');
-    });
+    // Función legacy — redirige al nuevo flujo con modal
+    if (producto.id) {
+        const fakeBtn = boton || document.createElement('button');
+        fakeBtn.dataset.id = producto.id;
+        fetch(`${window.BASE_URL}ajax/obtener-producto-carrito.php?id=${producto.id}`)
+            .then(r => r.json())
+            .then(data => { if (data.success) abrirModalCarrito(data); })
+            .catch(() => mostrarAlerta('Error de conexión', 'danger'));
+    }
 }
 
 /**
@@ -158,7 +273,7 @@ function agregarAFavoritos(productoId, boton) {
     // Verificar si ya está en favoritos
     const esFavorito = boton.classList.contains('active');
     
-    fetch('ajax/agregar-favorito.php', {
+    fetch(window.BASE_URL + 'ajax/agregar-favorito.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -173,7 +288,7 @@ function agregarAFavoritos(productoId, boton) {
         if (data.requiere_login) {
             mostrarAlerta('Debes iniciar sesión para usar favoritos', 'warning');
             setTimeout(() => {
-                window.location.href = 'login.php';
+                window.location.href = window.BASE_URL + 'login.php';
             }, 1500);
             return;
         }
@@ -298,21 +413,6 @@ window.MauroCalzado = {
     mostrarAlerta: mostrarAlerta
 };
 
-// ===========================================
-// MANEJO DE ERRORES GLOBAL
-// ===========================================
-
-window.addEventListener('error', function(e) {
-    console.error('Error capturado:', e.error);
-    if (!e.error?.message?.includes('Script error')) {
-        mostrarAlerta('Ocurrió un error inesperado.', 'danger');
-    }
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('Promesa rechazada:', e.reason);
-    mostrarAlerta('Error de conexión. Verifica tu internet.', 'warning');
-});
 
 // ===========================================
 // SMOOTH SCROLL

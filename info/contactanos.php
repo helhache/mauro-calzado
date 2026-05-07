@@ -10,7 +10,7 @@
  * - Opciones para consultas, reservas y comentarios
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Contáctanos";
 
 $errores = [];
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <?php
@@ -78,7 +78,7 @@ $banner_modo              = 'fondo';
 $banner_altura            = '350px';
 $banner_overlay_titulo    = 'CONTÁCTANOS';
 $banner_overlay_subtitulo = 'Estamos para ayudarte';
-require_once('includes/banner-carousel.php');
+require_once('../includes/banner-carousel.php');
 ?>
 
 <div class="container py-5">
@@ -338,7 +338,7 @@ require_once('includes/banner-carousel.php');
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
                             <strong>Tiempo de respuesta:</strong> Respondemos todos los mensajes 
-                            en un plazo máximo de 24 horas hábiles.
+                            en un plazo máximo de 24 horas hábiles al correo que proporciones.
                         </div>
                         
                         <!-- Botón enviar -->
@@ -355,7 +355,7 @@ require_once('includes/banner-carousel.php');
     </div>
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>
 
 <script>
 // Validación del formulario

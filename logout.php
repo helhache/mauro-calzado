@@ -29,11 +29,11 @@ if (estaLogueado()) {
     }
     
     // Redirigir al inicio con mensaje
-    header("Location: index.php?logout=success");
+    header("Location: " . SITE_URL . "index.php?logout=success");
     exit();
-    
+
 } else {
     // No hay sesión activa, redirigir directamente
-    redirigir('index.php');
+    redirigir(SITE_URL . 'index.php');
 }
 ?>

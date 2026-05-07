@@ -196,7 +196,7 @@ if ($contexto === 'promociones') {
                 <button type="submit"
                         name="eliminar_favorito"
                         class="btn btn-sm btn-danger shadow-sm"
-                        onclick="return confirm('¿Eliminar de favoritos?')"
+                        data-confirm="¿Eliminar de favoritos?" data-confirm-tipo="danger" data-confirm-ok="Sí, eliminar" data-confirm-titulo="Eliminar favorito"
                         title="Eliminar de favoritos">
                     <i class="bi bi-heart-fill"></i>
                 </button>
@@ -204,10 +204,10 @@ if ($contexto === 'promociones') {
         <?php endif; ?>
 
         <!-- IMAGEN -->
-        <a href="producto.php?id=<?php echo $id; ?>" class="d-block">
-            <?php if (!empty($imagen) && file_exists("img/productos/{$imagen}")): ?>
+        <a href="<?php echo BASE_PATH; ?>catalogo/producto.php?id=<?php echo $id; ?>" class="d-block">
+            <?php if (!empty($imagen) && file_exists(ABSPATH . "/img/productos/{$imagen}")): ?>
                 <!-- Imagen real del producto -->
-                <img src="img/productos/<?php echo $imagen; ?>"
+                <img src="<?php echo BASE_PATH; ?>img/productos/<?php echo $imagen; ?>"
                      class="card-img-top"
                      alt="<?php echo $nombre; ?>"
                      style="height: 280px; object-fit: cover; transition: transform 0.3s ease;"
@@ -244,7 +244,7 @@ if ($contexto === 'promociones') {
 
         <!-- Nombre del producto (h6 para SEO) -->
         <h6 class="card-title mb-2">
-            <a href="producto.php?id=<?php echo $id; ?>"
+            <a href="<?php echo BASE_PATH; ?>catalogo/producto.php?id=<?php echo $id; ?>"
                class="text-dark text-decoration-none hover-primary">
                 <?php echo $nombre; ?>
             </a>
@@ -327,7 +327,7 @@ if ($contexto === 'promociones') {
                     <?php endif; ?>
 
                     <!-- Botón Ver Detalles -->
-                    <a href="producto.php?id=<?php echo $id; ?>"
+                    <a href="<?php echo BASE_PATH; ?>catalogo/producto.php?id=<?php echo $id; ?>"
                        class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-eye-fill me-2"></i>Ver Detalles
                     </a>
@@ -349,7 +349,7 @@ if ($contexto === 'promociones') {
                     <?php endif; ?>
 
                     <!-- Botón Ver Producto -->
-                    <a href="producto.php?id=<?php echo $id; ?>"
+                    <a href="<?php echo BASE_PATH; ?>catalogo/producto.php?id=<?php echo $id; ?>"
                        class="btn btn-outline-primary btn-sm">
                         <i class="bi bi-eye-fill me-2"></i>Ver Producto
                     </a>

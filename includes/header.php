@@ -32,7 +32,10 @@ if (!defined('DB_HOST')) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <!-- ESTILOS PERSONALIZADOS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>css/styles.css">
+
+    <!-- URL base para JavaScript -->
+    <script>window.BASE_URL = '<?php echo SITE_URL; ?>';</script>
 </head>
 
 <body>
@@ -40,8 +43,8 @@ if (!defined('DB_HOST')) {
         <div class="container-fluid px-4">
 
             <!-- LOGO -->
-            <a class="navbar-brand" href="index.php">
-                <img src="img/logo.jpg" alt="Logo Mauro Calzado" height="60" class="logo-img">
+            <a class="navbar-brand" href="<?php echo BASE_PATH; ?>index.php">
+                <img src="<?php echo BASE_PATH; ?>img/logo.jpg" alt="Logo Mauro Calzado" height="60" class="logo-img">
             </a>
 
             <!-- BOTÓN HAMBURGUESA -->
@@ -55,16 +58,16 @@ if (!defined('DB_HOST')) {
                 <!-- NAVEGACIÓN PRINCIPAL -->
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="infantiles.php">Infantiles</a>
+                        <a class="nav-link text-dark fw-semibold" href="<?php echo BASE_PATH; ?>catalogo/infantiles.php">Infantiles</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="mujer.php">Mujer</a>
+                        <a class="nav-link text-dark fw-semibold" href="<?php echo BASE_PATH; ?>catalogo/mujer.php">Mujer</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="hombre.php">Hombre</a>
+                        <a class="nav-link text-dark fw-semibold" href="<?php echo BASE_PATH; ?>catalogo/hombre.php">Hombre</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="ofertas.php">
+                        <a class="nav-link text-dark fw-semibold" href="<?php echo BASE_PATH; ?>catalogo/ofertas.php">
                             <i class="bi bi-tag-fill text-danger"></i> Ofertas
                         </a>
                     </li>
@@ -97,10 +100,10 @@ if (!defined('DB_HOST')) {
                     ?>
 
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="nosotros.php">Nosotros</a>
+                        <a class="nav-link text-dark fw-semibold" href="<?php echo BASE_PATH; ?>info/nosotros.php">Nosotros</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark fw-semibold" href="contactanos.php">Contáctanos</a>
+                        <a class="nav-link text-dark fw-semibold" href="<?php echo BASE_PATH; ?>info/contactanos.php">Contáctanos</a>
                     </li>
                 </ul>
 
@@ -108,7 +111,7 @@ if (!defined('DB_HOST')) {
                 <div class="d-flex align-items-center gap-3">
 
                     <!-- BUSCADOR -->
-                    <form class="d-flex" role="search" method="GET" action="buscar.php">
+                    <form class="d-flex" role="search" method="GET" action="<?php echo BASE_PATH; ?>catalogo/buscar.php">
                         <div class="input-group">
                             <input class="form-control form-control-sm" type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar">
                             <button class="btn btn-sm btn-primary" type="submit">
@@ -119,7 +122,7 @@ if (!defined('DB_HOST')) {
 
                     <!-- CARRITO (solo para clientes) -->
                     <?php if (!estaLogueado() || esCliente()): ?>
-                        <a href="carrito.php" class="btn btn-outline-danger position-relative">
+                        <a href="<?php echo BASE_PATH; ?>compras/carrito.php" class="btn btn-outline-danger position-relative">
                             <i class="bi bi-cart3 fs-5"></i>
                             <?php if (isset($_SESSION['carrito']) && count($_SESSION['carrito']) > 0): ?>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -131,7 +134,7 @@ if (!defined('DB_HOST')) {
 
                     <!-- FAVORITOS (solo para clientes) -->
                     <?php if (!estaLogueado() || esCliente()): ?>
-                        <a href="favoritos.php" class="btn btn-outline-primary">
+                        <a href="<?php echo BASE_PATH; ?>cuenta/favoritos.php" class="btn btn-outline-primary">
                             <i class="bi bi-heart fs-5"></i>
                         </a>
                     <?php endif; ?>
@@ -183,22 +186,22 @@ if (!defined('DB_HOST')) {
                                 <?php else: ?>
                                     <!-- Opciones de Cliente -->
                                     <li>
-                                        <a class="dropdown-item" href="mi-cuenta.php">
+                                        <a class="dropdown-item" href="<?php echo BASE_PATH; ?>cuenta/mi-cuenta.php">
                                             <i class="bi bi-person me-2"></i>Mi Perfil
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="mis-pedidos.php">
+                                        <a class="dropdown-item" href="<?php echo BASE_PATH; ?>cuenta/mis-pedidos.php">
                                             <i class="bi bi-bag-check me-2"></i>Mis Pedidos
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="mensajes-internos.php">
+                                        <a class="dropdown-item" href="<?php echo BASE_PATH; ?>cuenta/mensajes-internos.php">
                                             <i class="bi bi-chat-dots me-2"></i>Mensajes
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="favoritos.php">
+                                        <a class="dropdown-item" href="<?php echo BASE_PATH; ?>cuenta/favoritos.php">
                                             <i class="bi bi-heart me-2"></i>Mis Favoritos
                                         </a>
                                     </li>
@@ -208,7 +211,7 @@ if (!defined('DB_HOST')) {
                                 <?php endif; ?>
 
                                 <li>
-                                    <a class="dropdown-item text-danger" href="logout.php">
+                                    <a class="dropdown-item text-danger" href="<?php echo BASE_PATH; ?>logout.php">
                                         <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
                                     </a>
                                 </li>
@@ -216,7 +219,7 @@ if (!defined('DB_HOST')) {
                         </div>
                     <?php else: ?>
                         <!-- Usuario NO logueado: Botón de login -->
-                        <a href="login.php" class="btn btn-primary">
+                        <a href="<?php echo BASE_PATH; ?>login.php" class="btn btn-primary">
                             <i class="bi bi-person-circle fs-5"></i> Ingresar
                         </a>
                     <?php endif; ?>

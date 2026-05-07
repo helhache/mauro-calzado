@@ -113,6 +113,61 @@ if ($stmt) {
     mysqli_stmt_close($stmt);
 }
 
+// ============================================================================
+// DATOS PARA GRÁFICOS
+// ============================================================================
+
+// Ventas de los últimos 7 días
+$query_ventas_7dias = "SELECT DATE(v.fecha_venta) as dia, COALESCE(SUM(v.subtotal), 0) as total
+                       FROM ventas_diarias v
+                       INNER JOIN turnos_caja tc ON v.turno_id = tc.id
+                       WHERE tc.sucursal_id = ?
+                       AND v.fecha_venta >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                       GROUP BY DATE(v.fecha_venta)
+                       ORDER BY dia ASC";
+$stmt_v7 = mysqli_prepare($conn, $query_ventas_7dias);
+$ventas_7dias = [];
+if ($stmt_v7) {
+    mysqli_stmt_bind_param($stmt_v7, "i", $sucursal_id);
+    mysqli_stmt_execute($stmt_v7);
+    $res_v7 = mysqli_stmt_get_result($stmt_v7);
+    while ($row = mysqli_fetch_assoc($res_v7)) {
+        $ventas_7dias[$row['dia']] = floatval($row['total']);
+    }
+    mysqli_stmt_close($stmt_v7);
+}
+
+// Rellenar los días que no tienen ventas con 0
+$labels_7dias = [];
+$data_7dias = [];
+for ($i = 6; $i >= 0; $i--) {
+    $fecha = date('Y-m-d', strtotime("-{$i} days"));
+    $labels_7dias[] = date('d/m', strtotime($fecha));
+    $data_7dias[] = isset($ventas_7dias[$fecha]) ? $ventas_7dias[$fecha] : 0;
+}
+
+// Stock por estado
+$query_stock_estados = "SELECT
+    SUM(CASE WHEN cantidad = 0 THEN 1 ELSE 0 END) as sin_stock,
+    SUM(CASE WHEN cantidad > 0 AND cantidad <= cantidad_minima THEN 1 ELSE 0 END) as stock_bajo,
+    SUM(CASE WHEN cantidad > cantidad_minima THEN 1 ELSE 0 END) as stock_optimo
+    FROM stock_sucursal
+    WHERE sucursal_id = ?";
+$stmt_se = mysqli_prepare($conn, $query_stock_estados);
+$stock_estados = ['sin_stock' => 0, 'stock_bajo' => 0, 'stock_optimo' => 0];
+if ($stmt_se) {
+    mysqli_stmt_bind_param($stmt_se, "i", $sucursal_id);
+    mysqli_stmt_execute($stmt_se);
+    $res_se = mysqli_stmt_get_result($stmt_se);
+    $row_se = mysqli_fetch_assoc($res_se);
+    if ($row_se) {
+        $stock_estados['sin_stock'] = intval($row_se['sin_stock']);
+        $stock_estados['stock_bajo'] = intval($row_se['stock_bajo']);
+        $stock_estados['stock_optimo'] = intval($row_se['stock_optimo']);
+    }
+    mysqli_stmt_close($stmt_se);
+}
+
 require_once('includes/header-gerente.php');
 ?>
 
@@ -274,6 +329,41 @@ require_once('includes/header-gerente.php');
     </div>
     
     <!-- ============================================== -->
+    <!-- GRÁFICOS: VENTAS Y STOCK -->
+    <!-- ============================================== -->
+    <div class="row g-3 mb-4">
+        <!-- Ventas últimos 7 días -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-bar-chart-line text-primary me-2"></i>
+                        Ventas — Últimos 7 días
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartVentas7Dias" style="max-height: 260px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock por estado -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-pie-chart text-success me-2"></i>
+                        Stock por Estado
+                    </h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="chartStockEstado" style="max-height: 260px; max-width: 260px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
     <!-- PRODUCTOS CON STOCK BAJO -->
     <!-- ============================================== -->
     <?php if (!empty($productos_bajo_stock)): ?>
@@ -400,6 +490,110 @@ require_once('includes/header-gerente.php');
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../js/graficos.js"></script>
+
+<script>
+// ============================================================================
+// GRÁFICO: Ventas últimos 7 días
+// ============================================================================
+(function () {
+    const ctx = document.getElementById('chartVentas7Dias');
+    if (!ctx) return;
+
+    const labels = <?php echo json_encode($labels_7dias); ?>;
+    const data   = <?php echo json_encode($data_7dias); ?>;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ventas ($)',
+                data: data,
+                backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return ' $' + ctx.parsed.y.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString('es-AR');
+                        }
+                    }
+                }
+            }
+        }
+    });
+})();
+
+// ============================================================================
+// GRÁFICO: Stock por estado
+// ============================================================================
+(function () {
+    const ctx = document.getElementById('chartStockEstado');
+    if (!ctx) return;
+
+    const sinStock   = <?php echo $stock_estados['sin_stock']; ?>;
+    const stockBajo  = <?php echo $stock_estados['stock_bajo']; ?>;
+    const stockOpt   = <?php echo $stock_estados['stock_optimo']; ?>;
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sin stock', 'Stock bajo', 'Stock óptimo'],
+            datasets: [{
+                data: [sinStock, stockBajo, stockOpt],
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(16, 185, 129, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(16, 185, 129, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 16, font: { size: 12 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = total > 0 ? Math.round((ctx.parsed / total) * 100) : 0;
+                            return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+})();
+</script>
 
 <?php
 require_once('includes/footer-gerente.php');

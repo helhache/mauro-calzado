@@ -1,27 +1,44 @@
 <?php
 /**
  * OFERTAS.PHP - PRODUCTOS EN PROMOCIÓN
- * TODAS las tarjetas deben verse IGUALES
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Ofertas y Promociones";
 
-// Consultar productos en promoción CON STOCK
+// PAGINACIÓN
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$productos_por_pagina = 10;
+$offset = ($pagina_actual - 1) * $productos_por_pagina;
+
+// CONTAR total de productos en oferta
+$stmt_count = mysqli_prepare($conn,
+    "SELECT COUNT(*) as total
+     FROM productos p
+     INNER JOIN categorias c ON p.categoria_id = c.id
+     WHERE p.activo = 1 AND p.en_promocion = 1 AND p.stock > 0"
+);
+mysqli_stmt_execute($stmt_count);
+$result_count = mysqli_stmt_get_result($stmt_count);
+$total_ofertas = mysqli_fetch_assoc($result_count)['total'];
+$total_paginas = ceil($total_ofertas / $productos_por_pagina);
+mysqli_stmt_close($stmt_count);
+
+// OBTENER productos en promoción paginados, ordenados A-Z
 $stmt = mysqli_prepare($conn,
     "SELECT p.*, c.nombre as categoria_nombre,
      p.precio - (p.precio * p.descuento_porcentaje / 100) AS precio_final
      FROM productos p
      INNER JOIN categorias c ON p.categoria_id = c.id
      WHERE p.activo = 1 AND p.en_promocion = 1 AND p.stock > 0
-     ORDER BY p.descuento_porcentaje DESC, p.nombre ASC"
+     ORDER BY p.nombre ASC
+     LIMIT ? OFFSET ?"
 );
-
+mysqli_stmt_bind_param($stmt, "ii", $productos_por_pagina, $offset);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
-$total_ofertas = mysqli_num_rows($result);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <?php
@@ -29,11 +46,11 @@ $banner_modo              = 'fondo';
 $banner_altura            = '350px';
 $banner_overlay_titulo    = 'OFERTAS Y PROMOCIONES';
 $banner_overlay_subtitulo = 'Los mejores precios en calzado para toda la familia';
-require_once('includes/banner-carousel.php');
+require_once('../includes/banner-carousel.php');
 ?>
 
 <div class="container py-5">
-    
+
     <!-- Banner de ofertas -->
     <div class="row mb-5">
         <div class="col-12">
@@ -53,32 +70,57 @@ require_once('includes/banner-carousel.php');
             </div>
         </div>
     </div>
-    
+
     <?php if ($total_ofertas > 0): ?>
-        
+
         <!-- Título -->
         <div class="row mb-4">
             <div class="col-12">
                 <h3 class="mb-0">Productos en Oferta</h3>
             </div>
         </div>
-        
+
         <!-- Grid de productos -->
         <div class="row">
             <?php while ($producto = mysqli_fetch_assoc($result)): ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <?php 
-                    // IMPORTANTE: Configurar variables AQUÍ, dentro del loop
-                    $contexto = 'ofertas';
+                    <?php
+                    $contexto = 'catalogo';
                     $mostrar_categoria = true;
-                    include('includes/componentes/tarjeta-producto.php'); 
+                    include('../includes/componentes/tarjeta-producto.php');
                     ?>
                 </div>
             <?php endwhile; ?>
         </div>
-        
+
+        <!-- PAGINACIÓN -->
+        <?php if ($total_paginas > 1): ?>
+            <nav aria-label="Paginación de ofertas" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <?php echo $pagina_actual <= 1 ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="?pagina=<?php echo $pagina_actual - 1; ?>">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <?php
+                    $inicio = max(1, $pagina_actual - 2);
+                    $fin = min($total_paginas, $pagina_actual + 2);
+                    for ($i = $inicio; $i <= $fin; $i++): ?>
+                        <li class="page-item <?php echo $i == $pagina_actual ? 'active' : ''; ?>">
+                            <a class="page-link" href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        </li>
+                    <?php endfor; ?>
+                    <li class="page-item <?php echo $pagina_actual >= $total_paginas ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="?pagina=<?php echo $pagina_actual + 1; ?>">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        <?php endif; ?>
+
     <?php else: ?>
-        
+
         <!-- Sin ofertas -->
         <div class="text-center py-5">
             <i class="bi bi-tag display-1 text-muted"></i>
@@ -92,9 +134,9 @@ require_once('includes/banner-carousel.php');
                 </a>
             </div>
         </div>
-        
+
     <?php endif; ?>
-    
+
     <!-- Beneficios -->
     <div class="row mt-5">
         <div class="col-12">
@@ -130,18 +172,7 @@ require_once('includes/banner-carousel.php');
     </div>
 </div>
 
-<style>
-.product-card {
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-</style>
-
 <?php
 mysqli_stmt_close($stmt);
-require_once('includes/footer.php');
+require_once('../includes/footer.php');
 ?>

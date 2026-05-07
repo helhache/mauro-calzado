@@ -140,143 +140,96 @@ if (!defined('DB_HOST')) {
 <div class="sidebar-backdrop" id="backdrop" onclick="toggleSidebar()"></div>
 
 <!-- TOPBAR -->
+<?php
+$admin_notif_count = 0;
+$admin_notif_lista = [];
+$stmt_an = mysqli_prepare($conn,
+    "SELECT id, tipo, titulo, mensaje, url, fecha_creacion
+     FROM notificaciones
+     WHERE visible_para IN ('admin','ambos') AND leida = 0
+     ORDER BY fecha_creacion DESC LIMIT 6");
+if ($stmt_an) {
+    mysqli_stmt_execute($stmt_an);
+    $res_an = mysqli_stmt_get_result($stmt_an);
+    while ($an = mysqli_fetch_assoc($res_an)) { $admin_notif_lista[] = $an; }
+    $admin_notif_count = count($admin_notif_lista);
+    mysqli_free_result($res_an);
+    mysqli_stmt_close($stmt_an);
+}
+?>
 <header class="admin-topbar">
+
+    <!-- IZQUIERDA: hamburguesa -->
     <div class="topbar-left">
-        <!-- Toggle Sidebar (mobile) -->
-        <button class="sidebar-toggle" onclick="toggleSidebar()">
-            <i class="bi bi-list fs-4"></i>
+        <button class="topbar-hamburger" onclick="toggleSidebar()" title="Menú">
+            <i class="bi bi-list"></i>
         </button>
-        
-        <!-- Breadcrumb o título de página -->
-        <h5 class="mb-0 fw-semibold d-none d-md-block text-dark">
-            <?php echo isset($titulo_pagina) ? $titulo_pagina : 'Panel de Control'; ?>
-        </h5>
     </div>
-    
+
+    <!-- DERECHA: campana + cerrar sesión -->
     <div class="topbar-right">
-        <!-- Notificaciones -->
-        <?php
-        // Obtener notificaciones no leídas
-        $query_notif = "SELECT COUNT(*) as total 
-                        FROM notificaciones 
-                        WHERE leida = 0 AND visible_para IN ('admin', 'ambos')";
-        $result_notif = mysqli_query($conn, $query_notif);
-        $notif_count = mysqli_fetch_assoc($result_notif)['total'] ?? 0;
-        
-        // Obtener últimas 5 notificaciones
-        $query_list = "SELECT * FROM notificaciones 
-                       WHERE visible_para IN ('admin', 'ambos')
-                       ORDER BY fecha_creacion DESC 
-                       LIMIT 5";
-        $result_list = mysqli_query($conn, $query_list);
-        ?>
+
+        <!-- Campana con dropdown de notificaciones -->
         <div class="dropdown">
-            <div class="topbar-icon" data-bs-toggle="dropdown" title="Notificaciones">
-                <i class="bi bi-bell fs-5"></i>
-                <?php if ($notif_count > 0): ?>
-                    <span class="badge bg-danger"><?php echo $notif_count; ?></span>
+            <button class="topbar-btn" data-bs-toggle="dropdown" title="Notificaciones">
+                <i class="bi bi-bell"></i>
+                <?php if ($admin_notif_count > 0): ?>
+                    <span class="topbar-badge"><?php echo $admin_notif_count; ?></span>
                 <?php endif; ?>
-            </div>
-            <div class="dropdown-menu dropdown-menu-end shadow-lg" style="width: 380px; max-height: 500px; overflow-y: auto;">
-                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                    <h6 class="mb-0 fw-bold">Notificaciones</h6>
-                    <?php if ($notif_count > 0): ?>
-                        <a href="notificaciones.php?marcar_todas=1" class="btn btn-sm btn-link text-primary">Marcar todas</a>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end shadow" style="width:320px; max-height:400px; overflow-y:auto;">
+                <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                    <strong class="small">Notificaciones</strong>
+                    <?php if ($admin_notif_count > 0): ?>
+                        <span class="badge bg-danger"><?php echo $admin_notif_count; ?> nuevas</span>
                     <?php endif; ?>
                 </div>
-                <?php if (mysqli_num_rows($result_list) > 0): ?>
-                    <?php while ($notif = mysqli_fetch_assoc($result_list)): ?>
-                        <a href="<?php echo $notif['url'] ?? '#'; ?>?notif_id=<?php echo $notif['id']; ?>" 
-                           class="dropdown-item px-3 py-3 <?php echo $notif['leida'] == 0 ? 'bg-light' : ''; ?>">
-                            <div class="d-flex gap-3">
-                                <div>
-                                    <?php
-                                    $icon_class = '';
-                                    switch($notif['tipo']) {
-                                        case 'pedido':
-                                            $icon_class = 'bg-success';
-                                            $icon = 'bi-bag-check';
-                                            break;
-                                        case 'stock_bajo':
-                                            $icon_class = 'bg-warning';
-                                            $icon = 'bi-exclamation-triangle';
-                                            break;
-                                        case 'nuevo_usuario':
-                                            $icon_class = 'bg-primary';
-                                            $icon = 'bi-person-plus';
-                                            break;
-                                        case 'review':
-                                            $icon_class = 'bg-info';
-                                            $icon = 'bi-star';
-                                            break;
-                                        case 'mensaje_cliente':
-                                        case 'mensaje_gerente':
-                                        case 'respuesta_admin':
-                                            $icon_class = 'bg-info';
-                                            $icon = 'bi-chat-dots';
-                                            break;
-                                        case 'cambio_estado':
-                                        case 'sistema':
-                                        default:
-                                            $icon_class = 'bg-secondary';
-                                            $icon = 'bi-bell';
-                                            break;
-                                    }
-                                    ?>
-                                    <div class="<?php echo $icon_class; ?> text-white rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
-                                        <i class="bi <?php echo $icon; ?>"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold small"><?php echo htmlspecialchars($notif['titulo']); ?></h6>
-                                    <p class="mb-1 text-muted small"><?php echo htmlspecialchars($notif['mensaje']); ?></p>
-                                    <span class="text-muted" style="font-size: 11px;">
-                                        <i class="bi bi-clock me-1"></i>
-                                        <?php 
-                                        $tiempo = time() - strtotime($notif['fecha_creacion']);
-                                        if ($tiempo < 60) echo 'Hace un momento';
-                                        elseif ($tiempo < 3600) echo 'Hace ' . floor($tiempo/60) . ' min';
-                                        elseif ($tiempo < 86400) echo 'Hace ' . floor($tiempo/3600) . ' hrs';
-                                        else echo date('d/m/Y', strtotime($notif['fecha_creacion']));
-                                        ?>
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
-                    <?php endwhile; ?>
-                    <div class="text-center py-2 border-top">
-                        <a href="notificaciones.php" class="btn btn-sm btn-link text-primary">Ver todas</a>
+                <?php if (empty($admin_notif_lista)): ?>
+                    <div class="text-center text-muted py-4 small">
+                        <i class="bi bi-bell-slash d-block fs-3 mb-1"></i>Sin notificaciones
                     </div>
                 <?php else: ?>
-                    <div class="text-center py-5 text-muted">
-                        <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
-                        <p class="mb-0 small">No hay notificaciones</p>
-                    </div>
+                    <?php foreach ($admin_notif_lista as $notif): ?>
+                    <a href="<?php echo htmlspecialchars($notif['url'] ?? '#'); ?>"
+                       class="dropdown-item border-bottom py-2 px-3">
+                        <div class="small fw-semibold"><?php echo htmlspecialchars($notif['titulo']); ?></div>
+                        <div class="text-muted" style="font-size:11px; white-space:normal;">
+                            <?php echo htmlspecialchars(mb_substr($notif['mensaje'], 0, 80)) . (mb_strlen($notif['mensaje']) > 80 ? '…' : ''); ?>
+                        </div>
+                        <div class="text-muted" style="font-size:10px;">
+                            <?php echo date('d/m/Y H:i', strtotime($notif['fecha_creacion'])); ?>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </div>
-        
-        <!-- Usuario -->
-        <div class="dropdown">
-            <div class="user-menu" data-bs-toggle="dropdown">
-                <div class="user-info text-end d-none d-md-block">
-                    <h6><?php echo $_SESSION['nombre']; ?></h6>
-                    <span>Administrador</span>
-                </div>
-                <div class="user-avatar">
-                    <?php echo strtoupper(substr($_SESSION['nombre'], 0, 1)); ?>
-                </div>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="../mi-cuenta.php"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
-                <li><a class="dropdown-item" href="configuracion.php"><i class="bi bi-gear me-2"></i>Configuración</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="../logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
-            </ul>
-        </div>
+
+        <!-- Cerrar sesión -->
+        <a href="../logout.php" class="topbar-btn topbar-btn-logout" title="Cerrar sesión">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="d-none d-md-inline ms-1">Salir</span>
+        </a>
+
     </div>
 </header>
+
+<script>
+// Auto-marcar notificaciones como leídas al abrir el dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    var bellBtn = document.querySelector('.topbar-btn[data-bs-toggle="dropdown"]');
+    if (bellBtn) {
+        bellBtn.addEventListener('click', function() {
+            var badge = bellBtn.querySelector('.topbar-badge');
+            if (badge) {
+                fetch('../ajax/marcar-notificaciones-leidas.php', { method: 'POST' })
+                    .then(function(r) { return r.json(); })
+                    .then(function() { badge.remove(); });
+            }
+        });
+    }
+});
+</script>
 
 <!-- CONTENT -->
 <main class="admin-content">

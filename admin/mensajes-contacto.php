@@ -160,7 +160,7 @@ require_once('includes/header-admin.php');
                                 <?php endif; ?>
                                 <a href="?eliminar=<?php echo $msg['id']; ?>"
                                    class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('¿Eliminar este mensaje?')"
+                                   data-confirm="¿Eliminar este mensaje?" data-confirm-tipo="danger" data-confirm-ok="Sí, eliminar" data-confirm-titulo="Eliminar mensaje"
                                    title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </a>

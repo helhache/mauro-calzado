@@ -77,8 +77,8 @@ mysqli_stmt_bind_param($stmt, 'iiiisi', $producto_id, $sucursal_origen, $sucursa
 if (mysqli_stmt_execute($stmt)) {
     // Notificación al admin
     $stmt_noti = mysqli_prepare($conn,
-        "INSERT INTO notificaciones (tipo, titulo, mensaje, usuario_destino_rol)
-         VALUES ('sistema', 'Nueva solicitud de transferencia', 'Un gerente ha solicitado una transferencia de stock entre sucursales.', 3)"
+        "INSERT INTO notificaciones (tipo, titulo, mensaje, visible_para)
+         VALUES ('sistema', 'Nueva solicitud de transferencia', 'Un gerente ha solicitado una transferencia de stock entre sucursales.', 'admin')"
     );
     mysqli_stmt_execute($stmt_noti);
     mysqli_stmt_close($stmt_noti);

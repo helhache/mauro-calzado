@@ -1,144 +1,117 @@
 <?php
 /**
- * AJAX/AGREGAR-CARRITO.PHP (VERSIÓN CORREGIDA)
- * 
- * CORRECCIONES:
- * 1. Validar si el usuario está logueado
- * 2. Mostrar mensaje apropiado si no está registrado
- * 3. Mejoras en las respuestas JSON
+ * AJAX/AGREGAR-CARRITO.PHP
+ * Agrega un producto al carrito de sesión.
+ * Clave de carrito: "{id}|{talle}|{color}" para soportar
+ * múltiples talles/colores del mismo producto.
  */
 
-// Incluir configuración
 require_once('../includes/config.php');
-
-// Configurar header para JSON
 header('Content-Type: application/json');
 
-// Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode([
-        'success' => false,
-        'mensaje' => 'Método no permitido'
-    ]);
+    echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
     exit;
 }
 
-// Leer datos JSON del body
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
-// Validar datos recibidos
-if (empty($data['id']) || empty($data['nombre']) || !isset($data['precio'])) {
-    echo json_encode([
-        'success' => false,
-        'mensaje' => 'Datos incompletos'
-    ]);
+if (empty($data['id'])) {
+    echo json_encode(['success' => false, 'mensaje' => 'Datos incompletos']);
     exit;
 }
 
-// CORRECCIÓN: Verificar si el usuario está logueado
+// Verificar login
 if (!estaLogueado()) {
     echo json_encode([
-        'success' => false,
-        'mensaje' => 'Crea tu cuenta para añadir productos',
+        'success'        => false,
+        'mensaje'        => 'Crea tu cuenta para añadir productos',
         'requiere_login' => true,
-        'redirect' => 'login.php'
+        'redirect'       => 'login.php'
     ]);
     exit;
 }
 
-// Limpiar y validar datos
-$producto_id = intval($data['id']);
-$producto_nombre = limpiarDato($data['nombre']);
-$producto_precio = floatval($data['precio']);
-$producto_imagen = limpiarDato($data['imagen'] ?? '');
-$cantidad = isset($data['cantidad']) ? intval($data['cantidad']) : 1;
+$producto_id   = intval($data['id']);
+$cantidad      = max(1, intval($data['cantidad'] ?? 1));
+$talle         = isset($data['talle'])  ? limpiarDato($data['talle'])  : '';
+$color         = isset($data['color'])  ? limpiarDato($data['color'])  : '';
 
-// Validar que el producto existe en la BD
-$stmt = mysqli_prepare($conn, "SELECT id, nombre, precio, stock FROM productos WHERE id = ? AND activo = 1");
+// Verificar que el producto existe y tiene stock
+$stmt = mysqli_prepare($conn,
+    "SELECT id, nombre, precio, imagen, stock, en_promocion, descuento_porcentaje,
+     CASE WHEN en_promocion = 1 THEN precio - (precio * descuento_porcentaje / 100) ELSE precio END AS precio_final
+     FROM productos WHERE id = ? AND activo = 1"
+);
 mysqli_stmt_bind_param($stmt, "i", $producto_id);
 mysqli_stmt_execute($stmt);
-$resultado = mysqli_stmt_get_result($stmt);
+$producto_db = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+mysqli_stmt_close($stmt);
 
-if (!$producto = mysqli_fetch_assoc($resultado)) {
-    echo json_encode([
-        'success' => false,
-        'mensaje' => 'Producto no encontrado'
-    ]);
+if (!$producto_db) {
+    echo json_encode(['success' => false, 'mensaje' => 'Producto no encontrado']);
+    exit;
+}
+if ($producto_db['stock'] < $cantidad) {
+    echo json_encode(['success' => false, 'mensaje' => 'Stock insuficiente']);
     exit;
 }
 
-// Verificar stock disponible
-if ($producto['stock'] < $cantidad) {
-    echo json_encode([
-        'success' => false,
-        'mensaje' => 'Stock insuficiente'
-    ]);
-    exit;
-}
-
-// Inicializar carrito en sesión si no existe
+// Inicializar carrito
 if (!isset($_SESSION['carrito'])) {
     $_SESSION['carrito'] = [];
 }
 
-// Agregar o actualizar producto en carrito
-if (isset($_SESSION['carrito'][$producto_id])) {
-    // Producto ya existe, aumentar cantidad
-    $_SESSION['carrito'][$producto_id]['cantidad'] += $cantidad;
+// Clave compuesta para soportar mismo producto con distinto talle/color
+$item_key = "{$producto_id}|{$talle}|{$color}";
+
+if (isset($_SESSION['carrito'][$item_key])) {
+    $_SESSION['carrito'][$item_key]['cantidad'] += $cantidad;
 } else {
-    // Producto nuevo, agregarlo
-    $_SESSION['carrito'][$producto_id] = [
-        'id' => $producto_id,
-        'nombre' => $producto_nombre,
-        'precio' => $producto_precio,
-        'imagen' => $producto_imagen,
+    $_SESSION['carrito'][$item_key] = [
+        'id'       => $producto_id,
+        'nombre'   => $producto_db['nombre'],
+        'precio'   => floatval($producto_db['precio_final']),
+        'imagen'   => $producto_db['imagen'],
         'cantidad' => $cantidad,
-        'talle' => null,
-        'color' => null
+        'talle'    => $talle !== '' ? $talle : null,
+        'color'    => $color !== '' ? $color : null,
     ];
 }
 
-// Si el usuario está logueado, también guardar en BD
+// Guardar/actualizar en BD (simplificado: un registro por producto)
 $usuario_id = $_SESSION['usuario_id'];
-
-// Verificar si ya existe en BD
-$stmt_check = mysqli_prepare($conn, 
+$stmt_check = mysqli_prepare($conn,
     "SELECT id, cantidad FROM carrito WHERE usuario_id = ? AND producto_id = ?"
 );
 mysqli_stmt_bind_param($stmt_check, "ii", $usuario_id, $producto_id);
 mysqli_stmt_execute($stmt_check);
-$result_check = mysqli_stmt_get_result($stmt_check);
+$row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_check));
+mysqli_stmt_close($stmt_check);
 
-if ($row = mysqli_fetch_assoc($result_check)) {
-    // Ya existe, actualizar cantidad
+if ($row) {
     $nueva_cantidad = $row['cantidad'] + $cantidad;
-    $stmt_update = mysqli_prepare($conn,
+    $stmt_upd = mysqli_prepare($conn,
         "UPDATE carrito SET cantidad = ?, fecha_agregado = NOW() WHERE id = ?"
     );
-    mysqli_stmt_bind_param($stmt_update, "ii", $nueva_cantidad, $row['id']);
-    mysqli_stmt_execute($stmt_update);
+    mysqli_stmt_bind_param($stmt_upd, "ii", $nueva_cantidad, $row['id']);
+    mysqli_stmt_execute($stmt_upd);
+    mysqli_stmt_close($stmt_upd);
 } else {
-    // No existe, insertar
-    $stmt_insert = mysqli_prepare($conn,
-        "INSERT INTO carrito (usuario_id, producto_id, cantidad, fecha_agregado) 
-         VALUES (?, ?, ?, NOW())"
+    $stmt_ins = mysqli_prepare($conn,
+        "INSERT INTO carrito (usuario_id, producto_id, cantidad, fecha_agregado) VALUES (?, ?, ?, NOW())"
     );
-    mysqli_stmt_bind_param($stmt_insert, "iii", $usuario_id, $producto_id, $cantidad);
-    mysqli_stmt_execute($stmt_insert);
+    mysqli_stmt_bind_param($stmt_ins, "iii", $usuario_id, $producto_id, $cantidad);
+    mysqli_stmt_execute($stmt_ins);
+    mysqli_stmt_close($stmt_ins);
 }
 
-// Calcular cantidad total de productos
-$cantidad_total = 0;
-foreach ($_SESSION['carrito'] as $item) {
-    $cantidad_total += $item['cantidad'];
-}
+$cantidad_total = array_sum(array_column($_SESSION['carrito'], 'cantidad'));
 
-// CORRECCIÓN: Respuesta exitosa mejorada
 echo json_encode([
-    'success' => true,
-    'mensaje' => 'Producto agregado al carrito ✓',
+    'success'        => true,
+    'mensaje'        => 'Producto agregado al carrito',
     'cantidad_total' => $cantidad_total,
-    'carrito' => $_SESSION['carrito']
 ]);
 ?>

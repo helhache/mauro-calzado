@@ -4,10 +4,10 @@
  * Recibe el POST del footer, guarda en BD y redirige con mensaje flash.
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: index.php');
+    header('Location: ' . SITE_URL . 'index.php');
     exit;
 }
 

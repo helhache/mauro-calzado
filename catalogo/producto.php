@@ -15,7 +15,7 @@
  * - Zara: Diseño limpio y minimalista
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 
 // Obtener ID del producto
 $producto_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -111,14 +111,14 @@ mysqli_stmt_bind_param($stmt_relacionados, "ii", $producto['categoria_id'], $pro
 mysqli_stmt_execute($stmt_relacionados);
 $result_relacionados = mysqli_stmt_get_result($stmt_relacionados);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <!-- BREADCRUMB -->
 <div class="container mt-3">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="index.php">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo BASE_PATH; ?>index.php">Inicio</a></li>
             <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars($producto['categoria_slug']); ?>.php">
                 <?php echo htmlspecialchars($producto['categoria_nombre']); ?>
             </a></li>
@@ -137,7 +137,7 @@ require_once('includes/header.php');
             <!-- COLUMNA IZQUIERDA: IMÁGENES -->
             <div class="col-lg-6 mb-4">
                 <!-- Imagen principal -->
-                <div class="card border-0 mb-3 position-relative">
+                <div class="card border shadow-sm mb-3 position-relative bg-light" style="min-height:300px;">
                     <?php if ($producto['en_promocion'] == 1): ?>
                         <span class="badge-promo" style="font-size: 1.2rem;">
                             -<?php echo $producto['descuento_porcentaje']; ?>% OFF
@@ -147,7 +147,8 @@ require_once('includes/header.php');
                     <img src="img/productos/<?php echo $producto['imagen']; ?>"
                          class="img-fluid rounded"
                          id="imagen-principal"
-                         alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
+                         alt="<?php echo htmlspecialchars($producto['nombre']); ?>"
+                         style="max-height:480px;object-fit:contain;width:100%;padding:1rem;">
                 </div>
                 
                 <!-- Miniaturas (si hay imágenes adicionales en galería) -->
@@ -157,14 +158,14 @@ require_once('includes/header.php');
                         <div class="col-3">
                             <img src="img/productos/<?php echo htmlspecialchars($producto['imagen']); ?>"
                                  class="img-thumbnail miniatura-producto active cursor-pointer"
-                                >
+                                 style="cursor:pointer">
                         </div>
                         <!-- Miniaturas de galería -->
                         <?php foreach ($imagenes_galeria as $img_gal): ?>
                             <div class="col-3">
                                 <img src="img/productos/<?php echo htmlspecialchars($img_gal['imagen']); ?>"
                                      class="img-thumbnail miniatura-producto cursor-pointer"
-                                    >
+                                     style="cursor:pointer">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -250,9 +251,20 @@ require_once('includes/header.php');
                     <input type="hidden" name="producto_id" id="producto_id" value="<?php echo $producto['id']; ?>">
                     
                     <!-- Selector de Color -->
-                    <?php if (!empty($producto['colores'])): 
-                        $colores = explode(',', $producto['colores']);
-                        ?>
+                    <?php
+                    // Colores guardados como JSON {"Negro":5,"Blanco":3,...}
+                    $colores = [];
+                    if (!empty($producto['colores'])) {
+                        $decoded = json_decode($producto['colores'], true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                            $colores = array_keys($decoded);
+                        } else {
+                            // fallback CSV
+                            $colores = array_filter(array_map('trim', explode(',', $producto['colores'])));
+                        }
+                    }
+                    ?>
+                    <?php if (!empty($colores)): ?>
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
                                 Color: <span id="color-seleccionado" class="text-primary">Selecciona uno</span>
@@ -279,8 +291,7 @@ require_once('includes/header.php');
                                     <div class="color-option"
                                          data-color="<?php echo htmlspecialchars($color); ?>"
                                          style="background-color: <?php echo htmlspecialchars($codigo_color); ?>;"
-                                         title="<?php echo htmlspecialchars($color); ?>"
-                                         onclick="seleccionarColor(this, <?php echo json_encode($color); ?>)">
+                                         title="<?php echo htmlspecialchars($color); ?>">
                                     </div>
                                     <!-- 
                                         Justificación del diseño:
@@ -294,28 +305,27 @@ require_once('includes/header.php');
                         </div>
                     <?php endif; ?>
                     
-                    <!-- Selector de Talle -->
-                    <?php if (!empty($producto['talles'])): 
+                    <!-- Selector de Talle (selección múltiple) -->
+                    <?php if (!empty($producto['talles'])):
                         $talles = explode(',', $producto['talles']);
                         ?>
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                Talle: <span id="talle-seleccionado" class="text-primary">Selecciona uno</span>
+                                Talle: <span id="talle-seleccionado" class="text-muted small">Podés seleccionar uno o varios</span>
                             </label>
                             <div class="d-flex gap-2 flex-wrap" id="selector-talles">
-                                <?php foreach ($talles as $talle): 
+                                <?php foreach ($talles as $talle):
                                     $talle = trim($talle);
                                     ?>
                                     <button type="button"
                                             class="btn btn-outline-secondary talle-option"
-                                            data-talle="<?php echo htmlspecialchars($talle); ?>"
-                                            onclick="seleccionarTalle(this, <?php echo json_encode($talle); ?>)">
+                                            data-talle="<?php echo htmlspecialchars($talle); ?>">
                                         <?php echo htmlspecialchars($talle); ?>
                                     </button>
                                 <?php endforeach; ?>
                             </div>
-                            <input type="hidden" name="talle" id="input-talle" required>
-                            
+                            <input type="hidden" name="talles_seleccionados" id="input-talles" value="">
+
                             <small class="text-muted d-block mt-2">
                                 <i class="bi bi-info-circle me-1"></i>
                                 <a href="#guia-talles" data-bs-toggle="modal" data-bs-target="#modalGuiaTalles">
@@ -329,7 +339,7 @@ require_once('includes/header.php');
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Cantidad</label>
                         <div class="input-group cantidad-selector">
-                            <button class="btn btn-outline-secondary" type="button" data-action="decrementar">
+                            <button class="btn btn-outline-secondary" type="button" data-delta="-1">
                                 <i class="bi bi-dash"></i>
                             </button>
                             <input type="number"
@@ -340,7 +350,7 @@ require_once('includes/header.php');
                                    min="1"
                                    max="<?php echo $producto['stock']; ?>"
                                    readonly>
-                            <button class="btn btn-outline-secondary" type="button" data-action="incrementar">
+                            <button class="btn btn-outline-secondary" type="button" data-delta="1">
                                 <i class="bi bi-plus"></i>
                             </button>
                         </div>
@@ -356,13 +366,204 @@ require_once('includes/header.php');
                             Agregar al Carrito
                         </button>
                         
-                        <button type="button" class="btn btn-outline-danger" onclick="agregarAFavoritos(<?php echo $producto['id']; ?>)">
+                        <button type="button" class="btn btn-outline-danger btn-favorito-detalle"
+                                data-producto-id="<?php echo $producto['id']; ?>">
                             <i class="bi bi-heart me-2"></i>
                             Agregar a Favoritos
                         </button>
                     </div>
                 </form>
-                
+
+                <script>
+                // ============================================================
+                // SCRIPT INLINE — se ejecuta aquí mismo, elementos ya en DOM
+                // Sin dependencias externas, sin problemas de timing
+                // ============================================================
+                (function() {
+                    var tallesSeleccionados = [];
+                    var colorSeleccionado   = null;
+
+                    // ── Colores ──────────────────────────────────────────────
+                    document.querySelectorAll('.color-option').forEach(function(div) {
+                        div.style.cursor = 'pointer';
+                        div.addEventListener('click', function() {
+                            document.querySelectorAll('.color-option').forEach(function(el) {
+                                el.style.outline   = 'none';
+                                el.style.transform = 'scale(1)';
+                            });
+                            this.style.outline   = '3px solid #0047AB';
+                            this.style.transform = 'scale(1.15)';
+
+                            colorSeleccionado = this.dataset.color;
+                            var inp = document.getElementById('input-color');
+                            if (inp) inp.value = this.dataset.color;
+                            var txt = document.getElementById('color-seleccionado');
+                            if (txt) { txt.textContent = this.dataset.color; txt.className = 'text-success fw-semibold'; }
+                        });
+                    });
+
+                    // ── Talles ───────────────────────────────────────────────
+                    document.querySelectorAll('.talle-option').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            var talle = this.dataset.talle;
+                            var idx   = tallesSeleccionados.indexOf(talle);
+                            if (idx === -1) {
+                                tallesSeleccionados.push(talle);
+                                this.classList.remove('btn-outline-secondary');
+                                this.classList.add('btn-primary');
+                            } else {
+                                tallesSeleccionados.splice(idx, 1);
+                                this.classList.remove('btn-primary');
+                                this.classList.add('btn-outline-secondary');
+                            }
+                            var inp = document.getElementById('input-talles');
+                            if (inp) inp.value = tallesSeleccionados.join(',');
+                            var txt = document.getElementById('talle-seleccionado');
+                            if (txt) {
+                                if (tallesSeleccionados.length === 0) {
+                                    txt.textContent = 'Podés seleccionar uno o varios';
+                                    txt.className   = 'text-muted small';
+                                } else {
+                                    txt.textContent = tallesSeleccionados.join(', ');
+                                    txt.className   = 'text-success fw-semibold';
+                                }
+                            }
+                        });
+                    });
+
+                    // ── Cantidad +/- ─────────────────────────────────────────
+                    document.querySelectorAll('[data-delta]').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            var inp = document.getElementById('cantidad');
+                            if (!inp) return;
+                            var val = parseInt(inp.value) + parseInt(this.dataset.delta);
+                            var max = parseInt(inp.max) || 999;
+                            if (val < 1) val = 1;
+                            if (val > max) val = max;
+                            inp.value = val;
+                        });
+                    });
+
+                    // ── Galería de miniaturas ─────────────────────────────────
+                    document.querySelectorAll('.miniatura-producto').forEach(function(img) {
+                        img.style.cursor = 'pointer';
+                        img.addEventListener('click', function() {
+                            var principal = document.getElementById('imagen-principal');
+                            if (!principal) return;
+                            principal.src = this.src;
+                            document.querySelectorAll('.miniatura-producto').forEach(function(m) {
+                                m.classList.remove('active');
+                            });
+                            this.classList.add('active');
+                        });
+                    });
+
+                    // ── Agregar al carrito (submit del formulario) ────────────
+                    var form = document.getElementById('form-agregar-carrito');
+                    if (form) {
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+
+                            var tieneColores = document.getElementById('selector-colores');
+                            var tieneTalles  = document.getElementById('selector-talles');
+
+                            if (tieneColores && !colorSeleccionado) {
+                                MC.alert('Por favor seleccioná un color antes de agregar al carrito', 'warning');
+                                tieneColores.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                return;
+                            }
+                            if (tieneTalles && tallesSeleccionados.length === 0) {
+                                MC.alert('Por favor seleccioná al menos un talle antes de agregar al carrito', 'warning');
+                                tieneTalles.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                return;
+                            }
+
+                            var productoId = document.getElementById('producto_id') ? document.getElementById('producto_id').value : null;
+                            var cantidad   = parseInt((document.getElementById('cantidad') || {}).value) || 1;
+                            if (!productoId) { MC.alert('Error: producto no válido', 'danger'); return; }
+
+                            var talles  = tallesSeleccionados.length > 0 ? tallesSeleccionados.slice() : [null];
+                            var btnSub  = form.querySelector('button[type="submit"]');
+                            if (btnSub) { btnSub.disabled = true; btnSub.textContent = 'Agregando...'; }
+
+                            var agregados = 0;
+                            var errorMsg  = null;
+                            var idx       = 0;
+
+                            function agregarSiguiente() {
+                                if (idx >= talles.length) {
+                                    if (btnSub) { btnSub.disabled = false; btnSub.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Agregar al Carrito'; }
+                                    if (agregados > 0) {
+                                        var msg = agregados > 1 ? (agregados + ' talles agregados al carrito') : 'Producto agregado al carrito';
+                                        MC.confirm(msg + ' ¿Querés ir al carrito?', function(ok) { if (ok) window.location.href = window.BASE_URL + 'compras/carrito.php'; }, { tipo: 'success', titulo: '¡Listo!', btnOk: 'Ir al carrito', btnCancel: 'Seguir comprando' });
+                                    } else if (errorMsg) {
+                                        MC.alert(errorMsg, 'danger');
+                                    }
+                                    return;
+                                }
+
+                                var talle = talles[idx++];
+                                var payload = JSON.stringify({ id: productoId, cantidad: cantidad, talle: talle, color: colorSeleccionado });
+
+                                fetch(window.BASE_URL + 'ajax/agregar-carrito.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: payload
+                                })
+                                .then(function(r) { return r.json(); })
+                                .then(function(data) {
+                                    if (data.requiere_login) {
+                                        MC.alert(data.mensaje || 'Debés iniciar sesión', 'warning');
+                                        window.location.href = window.BASE_URL + 'login.php?redirect=' + encodeURIComponent(window.location.href);
+                                        return;
+                                    }
+                                    if (data.success) {
+                                        agregados++;
+                                        if (typeof actualizarContadorCarrito === 'function') {
+                                            actualizarContadorCarrito(data.cantidad_total);
+                                        }
+                                    } else {
+                                        errorMsg = data.mensaje;
+                                    }
+                                    agregarSiguiente();
+                                })
+                                .catch(function() {
+                                    errorMsg = 'Error de conexión. Intentá de nuevo.';
+                                    agregarSiguiente();
+                                });
+
+                            }
+
+                            agregarSiguiente();
+                        });
+                    }
+
+                    // ── Favoritos ─────────────────────────────────────────────
+                    var favBtn = document.querySelector('.btn-favorito-detalle');
+                    if (favBtn) {
+                        favBtn.addEventListener('click', function() {
+                            var pid = this.dataset.productoId;
+                            fetch(window.BASE_URL + 'ajax/agregar-favorito.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ producto_id: pid })
+                            })
+                            .then(function(r) { return r.json(); })
+                            .then(function(data) {
+                                if (data.requiere_login) {
+                                    MC.alert('Debés iniciar sesión para usar favoritos', 'warning');
+                                    window.location.href = window.BASE_URL + 'login.php?redirect=' + encodeURIComponent(window.location.href);
+                                    return;
+                                }
+                                MC.alert(data.mensaje || (data.success ? 'Listo' : 'Error'), data.success ? 'success' : 'danger');
+                            })
+                            .catch(function() { MC.alert('Error de conexión', 'danger'); });
+                        });
+                    }
+
+                })(); // fin IIFE
+                </script>
+
                 <!-- Información adicional -->
                 <div class="card border-0 bg-light mt-4">
                     <div class="card-body">
@@ -616,11 +817,12 @@ require_once('includes/header.php');
     </div>
 </section>
 
-<?php require_once('includes/footer.php'); ?>
-
-<!-- Scripts -->
+<?php
+// ── Scripts específicos de esta página ──────────────────────────────────────
+// Se pasan a footer.php para que carguen DENTRO de </body>, después de main.js
+ob_start();
+?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/main.js"></script>
 <script src="js/producto-detalle.js"></script>
 <script>
 // ── Sistema de reseñas ──────────────────────────────────────────────────────
@@ -628,7 +830,7 @@ require_once('includes/header.php');
     const estrellas = document.querySelectorAll('.estrella-select');
     const inputCal  = document.getElementById('review-calificacion');
 
-    if (!estrellas.length) return; // no hay formulario (no logueado o ya reseñó)
+    if (!estrellas.length) return;
 
     function pintarEstrellas(valor) {
         estrellas.forEach((s, idx) => {
@@ -661,7 +863,7 @@ require_once('includes/header.php');
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
 
         try {
-            const resp = await fetch('ajax/guardar-review.php', {
+            const resp = await fetch(window.BASE_URL + 'ajax/guardar-review.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -691,3 +893,7 @@ require_once('includes/header.php');
     });
 })();
 </script>
+<?php
+$scripts_pagina = ob_get_clean();
+require_once('../includes/footer.php');
+?>

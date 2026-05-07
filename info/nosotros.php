@@ -12,14 +12,14 @@
  * - Google Maps Embed API (iframes) - No requiere API key
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Sobre Nosotros";
 
 // Obtener sucursales activas
 $query_sucursales = "SELECT * FROM sucursales WHERE activo = 1 ORDER BY id";
 $result_sucursales = mysqli_query($conn, $query_sucursales);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <?php
@@ -27,7 +27,7 @@ $banner_modo              = 'fondo';
 $banner_altura            = '350px';
 $banner_overlay_titulo    = 'SOBRE NOSOTROS';
 $banner_overlay_subtitulo = 'Más de 20 años llevando calidad a tus pies';
-require_once('includes/banner-carousel.php');
+require_once('../includes/banner-carousel.php');
 ?>
 
 <div class="container py-5">
@@ -296,96 +296,120 @@ require_once('includes/banner-carousel.php');
         </div>
     </section>
 
-    <!-- NUESTRAS SUCURSALES - datos dinámicos desde BD -->
+    <!-- NUESTRAS SUCURSALES - mapa único con Leaflet.js -->
     <?php
-    // Mapas embed de Google Maps por ID de sucursal (URLs reales de cada local)
-    $mapas_embed = [
-        1 => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d438.40049521373885!2d-65.77815919999999!3d-28.473403599999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x942428c6a855b2f5%3A0xd0e7a134b5822a0c!2sMauro%20Calzados!5e0!3m2!1ses-419!2sar!4v1761622442185!5m2!1ses-419!2sar',
-        2 => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d870.994614962631!2d-67.49699973046992!3d-29.165306998461116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x969d65730e3b61d5%3A0xb9c36287407c6221!2sMauro%20Calzados!5e0!3m2!1ses-419!2sar!4v1761622730216!5m2!1ses-419!2sar',
-        3 => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1737.787119140447!2d-66.85604407440334!3d-29.41200872261204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9427da4ace6c74a5%3A0x3bb5f8294b1bcd36!2sMauro%20Calzados!5e0!3m2!1ses-419!2sar!4v1761622815739!5m2!1ses-419!2sar',
-        4 => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d748.4481287183804!2d-65.20050450414735!3d-26.832338186508952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94225dd35a1af20d%3A0xefd75fe7fde1dd56!2sMauro%20Calzados!5e0!3m2!1ses-419!2sar!4v1761622877162!5m2!1ses-419!2sar',
-        5 => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4307.4500185325005!2d-65.41561149831072!3d-24.791368819458793!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941bc3a4e86ac617%3A0x1dd02652ab80eed!2sMauro%20Calzados!5e0!3m2!1ses-419!2sar!4v1761622933527!5m2!1ses-419!2sar',
+    // Coordenadas geográficas por ID de sucursal
+    $coordenadas_sucursales = [
+        1 => ['lat' => -28.473404, 'lng' => -65.778159],
+        2 => ['lat' => -29.165307, 'lng' => -67.496999],
+        3 => ['lat' => -29.412009, 'lng' => -66.856044],
+        4 => ['lat' => -26.832338, 'lng' => -65.200504],
+        5 => ['lat' => -24.791369, 'lng' => -65.415611],
     ];
+
+    // Construir array de sucursales para JS
+    $sucursales_js = [];
+    $sucursales_lista = [];
+    while ($suc = mysqli_fetch_assoc($result_sucursales)) {
+        $ap_man = $suc['horario_apertura_manana'] ? date('H:i', strtotime($suc['horario_apertura_manana'])) : null;
+        $ci_man = $suc['horario_cierre_manana']   ? date('H:i', strtotime($suc['horario_cierre_manana']))   : null;
+        $ap_tar = $suc['horario_apertura_tarde']  ? date('H:i', strtotime($suc['horario_apertura_tarde']))  : null;
+        $ci_tar = $suc['horario_cierre_tarde']    ? date('H:i', strtotime($suc['horario_cierre_tarde']))    : null;
+
+        $horario_lv  = ($ap_man && $ci_man && $ap_tar && $ci_tar)
+            ? "{$ap_man} - {$ci_man} / {$ap_tar} - {$ci_tar}" : 'Consultar';
+        $horario_sab = $suc['trabaja_sabado']
+            ? ($ap_man && $ci_man ? "{$ap_man} - {$ci_man}" : 'Abierto') : 'Cerrado';
+        $horario_dom = $suc['trabaja_domingo'] ? 'Abierto' : 'Cerrado';
+
+        $coords = $coordenadas_sucursales[$suc['id']] ?? null;
+        $suc['horario_lv']  = $horario_lv;
+        $suc['horario_sab'] = $horario_sab;
+        $suc['horario_dom'] = $horario_dom;
+        $suc['lat'] = $coords ? $coords['lat'] : null;
+        $suc['lng'] = $coords ? $coords['lng'] : null;
+        $sucursales_lista[] = $suc;
+
+        if ($coords) {
+            $sucursales_js[] = [
+                'id'          => (int)$suc['id'],
+                'nombre'      => $suc['nombre'],
+                'direccion'   => $suc['direccion'] . ', ' . $suc['ciudad'] . ', ' . $suc['provincia'],
+                'telefono'    => $suc['telefono'] ?? '',
+                'horario_lv'  => $horario_lv,
+                'horario_sab' => $horario_sab,
+                'horario_dom' => $horario_dom,
+                'lat'         => $coords['lat'],
+                'lng'         => $coords['lng'],
+            ];
+        }
+    }
     ?>
+
     <section id="sucursales" class="mb-5">
         <h2 class="fw-bold text-center mb-5">
             <i class="bi bi-geo-alt-fill text-danger me-2"></i>
             Nuestras Sucursales
         </h2>
 
-        <?php if (mysqli_num_rows($result_sucursales) > 0): ?>
-        <?php while ($suc = mysqli_fetch_assoc($result_sucursales)):
-            // Formatear horarios desde los campos TIME de la BD
-            $ap_man = $suc['horario_apertura_manana'] ? date('H:i', strtotime($suc['horario_apertura_manana'])) : null;
-            $ci_man = $suc['horario_cierre_manana']   ? date('H:i', strtotime($suc['horario_cierre_manana']))   : null;
-            $ap_tar = $suc['horario_apertura_tarde']  ? date('H:i', strtotime($suc['horario_apertura_tarde']))  : null;
-            $ci_tar = $suc['horario_cierre_tarde']    ? date('H:i', strtotime($suc['horario_cierre_tarde']))    : null;
+        <?php if (!empty($sucursales_lista)): ?>
+        <!-- Link a Leaflet.js (OpenStreetMap, sin API key) -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-            $horario_lv  = ($ap_man && $ci_man && $ap_tar && $ci_tar)
-                ? "{$ap_man} - {$ci_man} / {$ap_tar} - {$ci_tar}"
-                : 'Consultar';
-            $horario_sab = $suc['trabaja_sabado']
-                ? ($ap_man && $ci_man ? "{$ap_man} - {$ci_man}" : 'Abierto')
-                : 'Cerrado';
-            $horario_dom = $suc['trabaja_domingo'] ? 'Abierto' : 'Cerrado';
+        <div class="row g-0 shadow rounded overflow-hidden" style="min-height:520px;">
 
-            $mapa_url = $mapas_embed[$suc['id']] ?? null;
-        ?>
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-4 mb-3">
-                        <h4 class="fw-bold text-primary">
-                            <i class="bi bi-shop me-2"></i>
-                            <?php echo htmlspecialchars($suc['nombre']); ?>
-                        </h4>
-                        <p class="mb-2">
-                            <i class="bi bi-geo-alt text-danger me-2"></i>
-                            <strong>Dirección:</strong><br>
-                            <span class="ms-4">
-                                <?php echo htmlspecialchars($suc['direccion'] . ', ' . $suc['ciudad'] . ', ' . $suc['provincia']); ?>
+            <!-- Panel lateral: lista de sucursales -->
+            <div class="col-lg-4 bg-white border-end" style="max-height:520px;overflow-y:auto;">
+                <div class="p-3 border-bottom bg-light">
+                    <h6 class="mb-0 fw-bold text-primary">
+                        <i class="bi bi-list-ul me-2"></i>Seleccioná una sucursal
+                    </h6>
+                </div>
+                <div id="lista-sucursales">
+                    <?php foreach ($sucursales_lista as $idx => $suc): ?>
+                    <div class="sucursal-item p-3 border-bottom cursor-pointer"
+                         data-idx="<?php echo $idx; ?>"
+                         style="cursor:pointer; transition:background .2s;">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="badge bg-danger rounded-circle mt-1" style="width:24px;height:24px;line-height:1.3;font-size:.75rem;">
+                                <?php echo $idx + 1; ?>
                             </span>
-                        </p>
-                        <?php if (!empty($suc['telefono'])): ?>
-                        <p class="mb-2">
-                            <i class="bi bi-telephone text-success me-2"></i>
-                            <strong>Teléfono:</strong><br>
-                            <span class="ms-4"><?php echo htmlspecialchars($suc['telefono']); ?></span>
-                        </p>
-                        <?php endif; ?>
-                        <p class="mb-1">
-                            <i class="bi bi-clock text-info me-2"></i>
-                            <strong>Horarios:</strong>
-                        </p>
-                        <small class="ms-4 d-block"><strong>Lun - Vie:</strong> <?php echo htmlspecialchars($horario_lv); ?></small>
-                        <small class="ms-4 d-block"><strong>Sábados:</strong> <?php echo htmlspecialchars($horario_sab); ?></small>
-                        <small class="ms-4 d-block"><strong>Domingos:</strong> <?php echo htmlspecialchars($horario_dom); ?></small>
-                    </div>
-
-                    <div class="col-lg-8">
-                        <?php if ($mapa_url): ?>
-                        <div class="ratio ratio-21x9 rounded overflow-hidden shadow-sm">
-                            <iframe
-                                src="<?php echo $mapa_url; ?>"
-                                style="border:0;"
-                                allowfullscreen=""
-                                loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade">
-                            </iframe>
-                        </div>
-                        <?php else: ?>
-                        <div class="d-flex align-items-center justify-content-center bg-light rounded h-100" style="min-height:200px;">
-                            <div class="text-center text-muted">
-                                <i class="bi bi-map fs-1 d-block mb-2"></i>
-                                <p class="mb-0">Mapa no disponible</p>
+                            <div>
+                                <h6 class="mb-0 fw-bold"><?php echo htmlspecialchars($suc['nombre']); ?></h6>
+                                <small class="text-muted"><?php echo htmlspecialchars($suc['ciudad'] . ', ' . $suc['provincia']); ?></small>
                             </div>
                         </div>
-                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Mapa -->
+            <div class="col-lg-8 position-relative">
+                <div id="mapa-sucursales" style="height:520px;width:100%;"></div>
+
+                <!-- Panel de info de la sucursal seleccionada -->
+                <div id="panel-sucursal" class="position-absolute bottom-0 start-0 end-0 bg-white border-top p-3" style="display:none;z-index:1000;">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold mb-1" id="info-nombre"></h6>
+                            <p class="mb-1 small"><i class="bi bi-geo-alt text-danger me-1"></i><span id="info-direccion"></span></p>
+                            <p class="mb-1 small" id="info-tel-wrap"><i class="bi bi-telephone text-success me-1"></i><span id="info-telefono"></span></p>
+                            <p class="mb-0 small">
+                                <i class="bi bi-clock text-info me-1"></i>
+                                <strong>L-V:</strong> <span id="info-lv"></span> |
+                                <strong>Sáb:</strong> <span id="info-sab"></span> |
+                                <strong>Dom:</strong> <span id="info-dom"></span>
+                            </p>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary ms-2" onclick="document.getElementById('panel-sucursal').style.display='none'">
+                            <i class="bi bi-x"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        <?php endwhile; ?>
+
         <?php else: ?>
         <div class="text-center text-muted py-5">
             <i class="bi bi-shop fs-1 d-block mb-3"></i>
@@ -395,6 +419,84 @@ require_once('includes/banner-carousel.php');
 
     </section>
 
+    <?php if (!empty($sucursales_js)): ?>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    (function() {
+        const sucursales = <?php echo json_encode($sucursales_js, JSON_UNESCAPED_UNICODE); ?>;
+
+        // Centro del mapa: promedio de coordenadas
+        const latC = sucursales.reduce((s, x) => s + x.lat, 0) / sucursales.length;
+        const lngC = sucursales.reduce((s, x) => s + x.lng, 0) / sucursales.length;
+
+        const mapa = L.map('mapa-sucursales').setView([latC, lngC], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(mapa);
+
+        // Icono personalizado rojo
+        const iconoMarcador = L.divIcon({
+            className: '',
+            html: '<div style="background:#DC143C;color:#fff;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-weight:bold;font-size:11px;line-height:1;">{N}</span></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            popupAnchor: [0, -32]
+        });
+
+        const marcadores = [];
+
+        sucursales.forEach((suc, idx) => {
+            const icono = L.divIcon({
+                className: '',
+                html: `<div style="background:#DC143C;color:#fff;width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-weight:bold;font-size:12px;">${idx+1}</span></div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -34]
+            });
+
+            const marcador = L.marker([suc.lat, suc.lng], { icon: icono })
+                .addTo(mapa)
+                .on('click', () => mostrarInfo(suc));
+
+            marcadores.push(marcador);
+        });
+
+        function mostrarInfo(suc) {
+            document.getElementById('info-nombre').textContent    = suc.nombre;
+            document.getElementById('info-direccion').textContent = suc.direccion;
+            document.getElementById('info-telefono').textContent  = suc.telefono;
+            document.getElementById('info-tel-wrap').style.display = suc.telefono ? '' : 'none';
+            document.getElementById('info-lv').textContent  = suc.horario_lv;
+            document.getElementById('info-sab').textContent = suc.horario_sab;
+            document.getElementById('info-dom').textContent = suc.horario_dom;
+            document.getElementById('panel-sucursal').style.display = '';
+        }
+
+        function centrarEnSucursal(idx) {
+            const suc = sucursales[idx];
+            mapa.setView([suc.lat, suc.lng], 15, { animate: true });
+            mostrarInfo(suc);
+            // Resaltar item en lista
+            document.querySelectorAll('.sucursal-item').forEach(el => el.style.background = '');
+            const item = document.querySelector(`.sucursal-item[data-idx="${idx}"]`);
+            if (item) item.style.background = '#fff3cd';
+        }
+
+        // Click en lista de sucursales
+        document.querySelectorAll('.sucursal-item').forEach(el => {
+            el.addEventListener('click', () => centrarEnSucursal(parseInt(el.dataset.idx)));
+            el.addEventListener('mouseenter', () => { if (el.style.background !== 'rgb(255, 243, 205)') el.style.background = '#f8f9fa'; });
+            el.addEventListener('mouseleave', () => { if (el.style.background !== 'rgb(255, 243, 205)') el.style.background = ''; });
+        });
+
+        // Mostrar primera sucursal por defecto
+        if (sucursales.length > 0) centrarEnSucursal(0);
+    })();
+    </script>
+    <?php endif; ?>
+
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

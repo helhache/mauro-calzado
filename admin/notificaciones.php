@@ -149,7 +149,7 @@ require_once('includes/header-admin.php');
                                                 <i class="bi bi-check"></i>
                                             </a>
                                         <?php endif; ?>
-                                        <a href="?eliminar=<?php echo $notif['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta notificación?')">
+                                        <a href="?eliminar=<?php echo $notif['id']; ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Eliminar esta notificación?" data-confirm-tipo="danger" data-confirm-ok="Sí, eliminar" data-confirm-titulo="Eliminar notificación">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>

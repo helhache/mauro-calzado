@@ -3,12 +3,12 @@
  * FAVORITOS.PHP - LISTA DE FAVORITOS (VERSIÓN CON TARJETA UNIFICADA)
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Mis Favoritos";
 
 // Verificar que el usuario esté logueado
 if (!estaLogueado()) {
-    redirigir('login.php?redirect=favoritos.php');
+    redirigir(SITE_URL . 'login.php?redirect=' . urlencode(SITE_URL . 'cuenta/favoritos.php'));
 }
 
 $usuario_id = $_SESSION['usuario_id'];
@@ -39,7 +39,7 @@ mysqli_stmt_bind_param($stmt, "i", $usuario_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -60,7 +60,7 @@ require_once('includes/header.php');
             <i class="bi bi-heart display-1 text-muted"></i>
             <h3 class="mt-4">No tienes productos en favoritos</h3>
             <p class="text-muted">Empieza a guardar tus productos favoritos para comprarlos más tarde</p>
-            <a href="index.php" class="btn btn-primary btn-lg mt-3">
+            <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-primary btn-lg mt-3">
                 <i class="bi bi-shop me-2"></i>Explorar Productos
             </a>
         </div>
@@ -75,14 +75,14 @@ require_once('includes/header.php');
             while ($producto = mysqli_fetch_assoc($result)): 
             ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <?php include('includes/componentes/tarjeta-producto.php'); ?>
+                    <?php include('../includes/componentes/tarjeta-producto.php'); ?>
                 </div>
             <?php endwhile; ?>
         </div>
         
         <!-- Botón continuar comprando -->
         <div class="text-center mt-4">
-            <a href="index.php" class="btn btn-outline-primary btn-lg">
+            <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-outline-primary btn-lg">
                 <i class="bi bi-arrow-left me-2"></i>Continuar Comprando
             </a>
         </div>
@@ -91,5 +91,5 @@ require_once('includes/header.php');
 
 <?php
 mysqli_stmt_close($stmt);
-require_once('includes/footer.php');
+require_once('../includes/footer.php');
 ?>

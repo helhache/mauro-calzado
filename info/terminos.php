@@ -5,9 +5,9 @@
  * Página legal con términos de uso del sitio web y servicios
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 $titulo_pagina = "Términos y Condiciones";
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -225,4 +225,4 @@ require_once('includes/header.php');
     </div>
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

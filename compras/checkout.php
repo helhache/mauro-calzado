@@ -13,15 +13,15 @@
  * - Confirmación de pedido
  */
 
-require_once('includes/config.php');
-require_once('includes/verificar-cliente.php'); // Solo clientes logueados
+require_once('../includes/config.php');
+require_once('../includes/verificar-cliente.php'); // Solo clientes logueados
 
 $titulo_pagina = "Finalizar Compra";
 
 // Verificar que hay productos en el carrito
 if (!isset($_SESSION['carrito']) || empty($_SESSION['carrito'])) {
     $_SESSION['mensaje_error'] = 'Tu carrito está vacío';
-    redirigir('carrito.php');
+    redirigir(SITE_URL . 'compras/carrito.php');
 }
 
 // Obtener datos del usuario
@@ -206,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['finalizar_compra'])) {
     }
 }
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <?php if ($pedido_creado): ?>
@@ -252,10 +252,10 @@ require_once('includes/header.php');
                 </div>
                 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
-                    <a href="mis-pedidos.php" class="btn btn-primary btn-lg">
+                    <a href="<?php echo BASE_PATH; ?>cuenta/mis-pedidos.php" class="btn btn-primary btn-lg">
                         <i class="bi bi-bag-check me-2"></i>Ver Mis Pedidos
                     </a>
-                    <a href="index.php" class="btn btn-outline-secondary btn-lg">
+                    <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-outline-secondary btn-lg">
                         <i class="bi bi-house me-2"></i>Volver al Inicio
                     </a>
                 </div>
@@ -684,7 +684,7 @@ require_once('includes/header.php');
                                 <i class="bi bi-check-circle me-2"></i>Confirmar Pedido
                             </button>
                             
-                            <a href="carrito.php" class="btn btn-outline-secondary w-100">
+                            <a href="<?php echo BASE_PATH; ?>compras/carrito.php" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-arrow-left me-2"></i>Volver al Carrito
                             </a>
                             
@@ -705,11 +705,7 @@ require_once('includes/header.php');
 
 <?php endif; ?>
 
-<?php require_once('includes/footer.php'); ?>
-
-<!-- Scripts -->
-<script src="js/main.js"></script>
-<script src="js/validaciones.js"></script>
+<?php require_once('../includes/footer.php'); ?>
 
 <script>
 // Mostrar/ocultar formulario de envío según tipo de entrega
@@ -756,21 +752,21 @@ document.getElementById('form-checkout').addEventListener('submit', function(e) 
     
     // Verificar sucursal
     if (!document.querySelector('input[name="sucursal_id"]:checked')) {
-        MauroCalzado.mostrarAlerta('Por favor selecciona una sucursal', 'warning');
+        MC.alert('Por favor selecciona una sucursal', 'warning');
         e.preventDefault();
         return false;
     }
 
     // Verificar tipo de entrega
     if (!document.querySelector('input[name="tipo_entrega"]:checked')) {
-        MauroCalzado.mostrarAlerta('Por favor selecciona un tipo de entrega', 'warning');
+        MC.alert('Por favor selecciona un tipo de entrega', 'warning');
         e.preventDefault();
         return false;
     }
 
     // Verificar método de pago
     if (!document.querySelector('input[name="metodo_pago"]:checked')) {
-        MauroCalzado.mostrarAlerta('Por favor selecciona un método de pago', 'warning');
+        MC.alert('Por favor selecciona un método de pago', 'warning');
         e.preventDefault();
         return false;
     }
@@ -783,7 +779,7 @@ document.getElementById('form-checkout').addEventListener('submit', function(e) 
         const provincia = document.getElementById('provincia').value;
 
         if (!direccion || !ciudad || !provincia) {
-            MauroCalzado.mostrarAlerta('Por favor completa todos los datos de envío', 'warning');
+            MC.alert('Por favor completa todos los datos de envío', 'warning');
             e.preventDefault();
             return false;
         }
@@ -792,7 +788,7 @@ document.getElementById('form-checkout').addEventListener('submit', function(e) 
     // Verificar teléfono
     const telefono = document.getElementById('telefono').value.trim();
     if (!telefono) {
-        MauroCalzado.mostrarAlerta('Por favor ingresa un teléfono de contacto', 'warning');
+        MC.alert('Por favor ingresa un teléfono de contacto', 'warning');
         e.preventDefault();
         return false;
     }

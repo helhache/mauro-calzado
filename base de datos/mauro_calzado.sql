@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-04-2026 a las 05:43:41
+-- Tiempo de generación: 07-05-2026 a las 17:48:35
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -167,6 +167,14 @@ CREATE TABLE `banner_slides` (
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
+--
+-- Volcado de datos para la tabla `banner_slides`
+--
+
+INSERT INTO `banner_slides` (`id`, `titulo`, `subtitulo`, `texto_boton`, `url_boton`, `imagen`, `orden`, `activo`, `fecha_creacion`) VALUES
+(4, 'MAURO CALZADO', 'LO MEJOR PARA TU FAMILIA', '', '', 'banner_1778095303_3908.jpg', 0, 1, '2026-05-06 19:21:43'),
+(5, 'MAURO ZAPATERIAS', '', '', '', 'banner_1778095430_8644.jpg', 2, 1, '2026-05-06 19:23:50');
+
 -- --------------------------------------------------------
 
 --
@@ -191,9 +199,7 @@ CREATE TABLE `carrito` (
 INSERT INTO `carrito` (`id`, `usuario_id`, `session_id`, `producto_id`, `cantidad`, `talle`, `color`, `fecha_agregado`) VALUES
 (5, 19, NULL, 14, 1, NULL, NULL, '2025-11-12 17:47:18'),
 (6, 19, NULL, 16, 2, NULL, NULL, '2025-11-12 17:48:01'),
-(7, 19, NULL, 22, 1, NULL, NULL, '2025-11-12 17:48:03'),
-(10, 4, NULL, 15, 1, NULL, NULL, '2025-11-15 16:15:11'),
-(11, 4, NULL, 16, 1, NULL, NULL, '2025-11-15 16:15:12');
+(7, 19, NULL, 22, 1, NULL, NULL, '2025-11-12 17:48:03');
 
 -- --------------------------------------------------------
 
@@ -239,6 +245,13 @@ CREATE TABLE `cobro_cuotas_credito` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 --
+-- Volcado de datos para la tabla `cobro_cuotas_credito`
+--
+
+INSERT INTO `cobro_cuotas_credito` (`id`, `turno_id`, `sucursal_id`, `cliente_nombre`, `cliente_dni`, `monto_cobrado`, `numero_cuota`, `observaciones`, `fecha_cobro`) VALUES
+(1, 10, 2, 'pepito', 'sasda', 1.00, 1, NULL, '2026-05-07 12:03:31');
+
+--
 -- Disparadores `cobro_cuotas_credito`
 --
 DELIMITER $$
@@ -249,6 +262,26 @@ CREATE TRIGGER `after_cobro_insert` AFTER INSERT ON `cobro_cuotas_credito` FOR E
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `configuracion`
+--
+
+CREATE TABLE `configuracion` (
+  `id` int(11) NOT NULL,
+  `clave` varchar(100) NOT NULL,
+  `valor` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `configuracion`
+--
+
+INSERT INTO `configuracion` (`id`, `clave`, `valor`, `updated_at`) VALUES
+(1, 'mantenimiento_activo', '0', '2026-04-22 03:45:39');
 
 -- --------------------------------------------------------
 
@@ -347,7 +380,8 @@ CREATE TABLE `gastos_sucursal` (
 --
 
 INSERT INTO `gastos_sucursal` (`id`, `turno_id`, `sucursal_id`, `concepto`, `monto`, `tipo`, `fecha_gasto`, `descripcion`, `comprobante`, `registrado_por`, `fecha_registro`) VALUES
-(1, 5, 2, 'pago agosto', 100000.00, 'servicio', '2025-11-12', '', NULL, 11, '2025-11-12 20:54:25');
+(1, 5, 2, 'pago agosto', 100000.00, 'servicio', '2025-11-12', '', NULL, 11, '2025-11-12 20:54:25'),
+(2, 10, 2, 'concat', 2.00, 'proveedor', '2026-05-07', NULL, NULL, 11, '2026-05-07 15:03:49');
 
 --
 -- Disparadores `gastos_sucursal`
@@ -731,20 +765,20 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id`, `categoria_id`, `nombre`, `descripcion`, `precio`, `en_promocion`, `descuento_porcentaje`, `stock`, `colores`, `talles`, `imagen`, `imagenes_adicionales`, `marca`, `material`, `genero`, `destacado`, `vistas`, `ventas`, `fecha_creacion`, `fecha_actualizacion`, `activo`) VALUES
-(11, 1, 'Tacos Morena Tira única', 'Elegantes tacos', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Blanco\":16,\"Gris\":16}', '38,39,40,41,42', 'TacoTira-morena.jpg', NULL, 'Morena', 'Cuero', 'mujer', 0, 1, 0, '2025-10-30 01:46:58', '2026-03-05 21:15:02', 1),
-(12, 1, 'Sandalias de Goma', 'Sandalias verano', 15000.00, 0, 0, 50, '{\"Negro\":25,\"Beige\":25}', '35,36,37,38,39,40,41,42', 'SandaliaDeGoma.jpg', NULL, 'Comfort', 'Goma', 'mujer', 0, 0, 0, '2025-10-30 01:46:58', '2025-11-07 18:21:21', 1),
+(11, 1, 'Tacos Morena Tira única', 'Elegantes tacos', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Blanco\":16,\"Gris\":16}', '38,39,40,41,42', 'TacoTira-morena.jpg', NULL, 'Morena', 'Cuero', 'mujer', 0, 2, 0, '2025-10-30 01:46:58', '2026-05-06 16:58:06', 1),
+(12, 1, 'Sandalias de Goma', 'Sandalias verano', 15000.00, 0, 0, 50, '{\"Negro\":25,\"Beige\":25}', '35,36,37,38,39,40,41,42', 'SandaliaDeGoma.jpg', NULL, 'Comfort', 'Goma', 'mujer', 0, 3, 0, '2025-10-30 01:46:58', '2026-05-07 11:28:02', 1),
 (13, 1, 'Tacos Morena Cruz', 'Tacos cruz', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Blanco\":16,\"Gris\":16}', '38,39,40,41,42', 'TacoXMorena.jpg', NULL, 'Morena', 'Cuero', 'mujer', 0, 0, 0, '2025-10-30 01:46:58', '2025-11-07 18:21:21', 1),
-(14, 1, 'Tacos Morena Tres', 'Tacos tres tiras', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Blanco\":16,\"Gris\":16}', '38,39,40,41,42', 'TacoTresMorena.jpg', NULL, 'Morena', 'Cuero', 'mujer', 0, 0, 0, '2025-10-30 01:46:58', '2025-11-07 18:21:21', 1),
+(14, 1, 'Tacos Morena Tres', 'Tacos tres tiras', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Blanco\":16,\"Gris\":16}', '38,39,40,41,42', 'TacoTresMorena.jpg', NULL, 'Morena', 'Cuero', 'mujer', 0, 1, 0, '2025-10-30 01:46:58', '2026-05-06 16:52:53', 1),
 (15, 1, 'Zapatillas One Foot Mujer', 'Promo 2x30000', 18000.00, 1, 17, 50, '{\"Negro\":12,\"Blanco\":12,\"Gris\":12,\"Rosa\":12}', '38,39,40,41,42', 'ZapatillasOneFootFm.jpg', NULL, 'One Foot', 'Textil', 'mujer', 1, 1, 0, '2025-10-30 01:46:58', '2026-03-05 21:15:07', 1),
-(16, 2, 'Zapatillas One Foot Hombre', 'Promo 2x30000', 18000.00, 1, 17, 50, '{\"Negro\":12,\"Verde\":12,\"Gris\":12,\"Azul\":12}', '37,38,39,40,41,42,43,44', 'ZapatillasOneFootHb.jpg', NULL, 'One Foot', 'Textil', 'hombre', 1, 0, 0, '2025-10-30 01:47:07', '2025-11-07 18:21:21', 1),
-(17, 2, 'Zapatillas Bochin', 'Seguridad', 30000.00, 0, 0, 50, '{\"Negro\":16,\"Marrón\":16,\"Gris\":16}', '38,39,40,41,42,43,44', 'ZapatillasBochin.jpg', NULL, 'Bochin', 'Cuero', 'hombre', 0, 0, 0, '2025-10-30 01:47:07', '2025-11-07 18:21:21', 1),
+(16, 2, 'Zapatillas One Foot Hombre', 'Promo 2x30000', 18000.00, 1, 17, 50, '{\"Negro\":12,\"Verde\":12,\"Gris\":12,\"Azul\":12}', '37,38,39,40,41,42,43,44', 'ZapatillasOneFootHb.jpg', NULL, 'One Foot', 'Textil', 'hombre', 1, 2, 0, '2025-10-30 01:47:07', '2026-05-06 16:52:45', 1),
+(17, 2, 'Zapatillas Bochin', 'Seguridad', 30000.00, 0, 0, 50, '{\"Negro\":16,\"Marrón\":16,\"Gris\":16}', '38,39,40,41,42,43,44', 'ZapatillasBochin.jpg', NULL, 'Bochin', 'Cuero', 'hombre', 0, 6, 0, '2025-10-30 01:47:07', '2026-05-07 11:21:32', 1),
 (18, 2, 'Zapatos Stone', 'Casuales', 25000.00, 0, 0, 50, '{\"Negro\":16,\"Marrón\":16,\"Blanco\":16}', '38,39,40,41,42,43,44', 'ZapatoZapatillaStone.jpg', NULL, 'Stone', 'Cuero', 'hombre', 0, 0, 0, '2025-10-30 01:47:07', '2025-11-07 18:21:21', 1),
-(19, 2, 'Campus Gamuza', 'Urbanas', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Marrón\":16,\"Gris\":16}', '35,36,37,38,39,40,41,42,43,44', 'CampusGamusaHom.jpg', NULL, 'Campus', 'Gamuza', 'hombre', 0, 1, 0, '2025-10-30 01:47:07', '2025-12-02 01:32:15', 1),
+(19, 2, 'Campus Gamuza', 'Urbanas', 20000.00, 0, 0, 50, '{\"Negro\":16,\"Marrón\":16,\"Gris\":16}', '35,36,37,38,39,40,41,42,43,44', 'CampusGamusaHom.jpg', NULL, 'Campus', 'Gamuza', 'hombre', 0, 13, 0, '2025-10-30 01:47:07', '2026-05-07 10:46:13', 1),
 (20, 2, 'Zapatos Golazos', 'Deportivos', 30000.00, 0, 0, 50, '{\"Negro\":16,\"Marrón\":16,\"Gris\":16}', '38,39,40,41,42,43,44', 'ZapatosGolazos.jpg', NULL, 'Golazos', 'Textil', 'hombre', 0, 0, 0, '2025-10-30 01:47:07', '2025-11-07 18:21:21', 1),
-(21, 3, 'Ojotas Infantiles', 'Para niños', 5000.00, 0, 0, 50, '{\"Blanco\":12,\"Negro\":12,\"Celeste\":12,\"Rosa\":12}', '29,30,31,32,33,34,35,36,37,38,39,40', 'OjotasInfantiles.jpg', NULL, 'Kids', 'Goma', 'infantil', 0, 1, 0, '2025-10-30 01:47:18', '2026-03-05 21:06:10', 1),
-(22, 3, 'Zapatillas One Foot Infantiles', 'Promo 2x25000', 15000.00, 1, 17, 50, '{\"Blanco\":12,\"Negro\":12,\"Celeste\":12,\"Rosa\":12}', '19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36', 'ZapatillasOneFootIn.jpg', NULL, 'One Foot', 'Textil', 'infantil', 1, 1, 0, '2025-10-30 01:47:18', '2026-03-05 21:14:31', 1),
+(21, 3, 'Ojotas Infantiles', 'Para niños', 5000.00, 0, 0, 50, '{\"Blanco\":12,\"Negro\":12,\"Celeste\":12,\"Rosa\":12}', '29,30,31,32,33,34,35,36,37,38,39,40', 'OjotasInfantiles.jpg', NULL, 'Kids', 'Goma', 'infantil', 0, 3, 0, '2025-10-30 01:47:18', '2026-05-06 16:52:59', 1),
+(22, 3, 'Zapatillas One Foot Infantiles', 'Promo 2x25000', 15000.00, 1, 17, 50, '{\"Blanco\":12,\"Negro\":12,\"Celeste\":12,\"Rosa\":12}', '19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36', 'ZapatillasOneFootIn.jpg', NULL, 'One Foot', 'Textil', 'infantil', 1, 2, 0, '2025-10-30 01:47:18', '2026-05-06 15:12:49', 1),
 (23, 3, 'New Balance Infantiles', 'Deportivas', 15000.00, 0, 0, 50, '{\"Blanco\":12,\"Negro\":12,\"Celeste\":12,\"Rosa\":12}', '28,29,30,31,32,33,34,35,36,37,38', 'ZapatillasNewBalanceIn.jpg', NULL, 'New Balance', 'Textil', 'infantil', 0, 0, 0, '2025-10-30 01:47:18', '2025-11-07 18:21:21', 1),
-(24, 3, 'Mix Botines', 'Abotinadas', 18000.00, 0, 0, 50, '{\"Blanco\":8,\"Negro\":8,\"Celeste\":8,\"Rosa\":8,\"Naranja\":8,\"Rojo\":8}', '24,25,26,27,28,29,30,31,32,33,34,35,36,37,38', 'Mix BotinesMix.jpg', NULL, 'Mix', 'Textil', 'infantil', 0, 1, 0, '2025-10-30 01:47:18', '2025-12-01 23:11:55', 1),
+(24, 3, 'Mix Botines', 'Abotinadas', 18000.00, 0, 0, 50, '{\"Blanco\":8,\"Negro\":8,\"Celeste\":8,\"Rosa\":8,\"Naranja\":8,\"Rojo\":8}', '24,25,26,27,28,29,30,31,32,33,34,35,36,37,38', 'Mix BotinesMix.jpg', NULL, 'Mix', 'Textil', 'infantil', 0, 5, 0, '2025-10-30 01:47:18', '2026-05-06 16:48:26', 1),
 (25, 3, 'Bic Boy Capibara', 'Divertidas', 15000.00, 0, 0, 50, '{\"Blanca\":16,\"Negra\":16,\"Azul\":16}', '24,25,26,27,28,29,30,31,32,33,34,35,36', 'ZapatillasBicBoy.jpg', NULL, 'Bic Boy', 'Textil', 'infantil', 0, 3, 0, '2025-10-30 01:47:18', '2026-03-05 21:11:51', 1);
 
 -- --------------------------------------------------------
@@ -844,10 +878,26 @@ INSERT INTO `stock_sucursal` (`id`, `producto_id`, `sucursal_id`, `cantidad`, `c
 (4, 14, 1, 28, 10, '2025-11-06 15:39:03'),
 (5, 17, 1, 41, 10, '2025-11-06 15:39:03'),
 (8, 18, 2, 12, 10, '2025-11-06 15:39:03'),
-(9, 19, 2, 22, 10, '2025-11-12 21:18:51'),
+(9, 19, 2, 21, 10, '2026-05-07 15:01:43'),
 (10, 20, 2, 30, 10, '2025-11-17 21:31:12'),
 (11, 21, 2, 58, 10, '2025-11-12 20:31:37'),
 (12, 23, 2, 17, 10, '2025-11-06 15:39:03');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `stock_sucursal_detalle`
+--
+
+CREATE TABLE `stock_sucursal_detalle` (
+  `id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `sucursal_id` int(11) NOT NULL,
+  `color` varchar(50) NOT NULL DEFAULT '',
+  `talle` varchar(20) NOT NULL DEFAULT '',
+  `cantidad` int(11) NOT NULL DEFAULT 0,
+  `ultima_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stock exacto por producto, sucursal, color y talle';
 
 -- --------------------------------------------------------
 
@@ -942,6 +992,7 @@ CREATE TABLE `turnos_caja` (
   `diferencia_caja` decimal(10,2) DEFAULT 0.00 COMMENT 'Diferencia entre esperado y contado',
   `notas_apertura` text DEFAULT NULL,
   `notas_cierre` text DEFAULT NULL,
+  `numero_lote` varchar(50) DEFAULT NULL COMMENT 'Número de lote del ticket final de tarjetas',
   `estado` enum('abierto','cerrado') DEFAULT 'abierto',
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
@@ -950,14 +1001,17 @@ CREATE TABLE `turnos_caja` (
 -- Volcado de datos para la tabla `turnos_caja`
 --
 
-INSERT INTO `turnos_caja` (`id`, `sucursal_id`, `gerente_id`, `fecha_apertura`, `fecha_cierre`, `turno`, `monto_inicial`, `efectivo_ventas`, `tarjeta_ventas`, `transferencia_ventas`, `go_cuotas_ventas`, `credito_ventas`, `cobro_cuotas_credito`, `gastos_dia`, `retiros`, `depositos_banco`, `pares_vendidos`, `ingreso_pares`, `salida_pares`, `efectivo_cierre`, `venta_total_dia`, `diferencia_caja`, `notas_apertura`, `notas_cierre`, `estado`, `fecha_creacion`) VALUES
-(1, 2, 11, '2025-11-12 11:15:32', '2025-11-12 11:19:31', 'manana', 10.00, 5000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1, 0, 0, 5010.00, 5000.00, 0.00, 'cambio prueba', 'primera caja de prueba ', 'cerrado', '2025-11-12 14:15:32'),
-(2, 2, 11, '2025-11-12 11:20:51', '2025-11-12 15:37:25', 'tarde', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0, 0, 0, 0.00, 0.00, 0.00, '', '', 'cerrado', '2025-11-12 14:20:51'),
-(3, 2, 11, '2025-11-12 15:38:45', '2025-11-12 15:48:30', 'manana', 10.00, 120000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 4, 0, 0, 120010.00, 120000.00, 0.00, 'me demore por el trafico', '', 'cerrado', '2025-11-12 18:38:45'),
-(4, 2, 11, '2025-11-12 17:28:26', '2025-11-12 17:33:28', 'manana', 10.00, 5000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1, 0, 0, 5010.00, 5000.00, 0.00, '', '', 'cerrado', '2025-11-12 20:28:26'),
-(5, 2, 11, '2025-11-12 17:52:26', '2025-11-12 17:58:04', 'manana', 1000.00, 150000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 100000.00, 0.00, 0.00, 5, 0, 0, 51000.00, 150000.00, 0.00, 'tarde por trafico', '', 'cerrado', '2025-11-12 20:52:26'),
-(6, 2, 11, '2025-11-12 18:17:24', '2025-11-12 18:20:51', 'manana', 10000.00, 100000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 5, 0, 0, 110000.00, 100000.00, 0.00, '', '', 'cerrado', '2025-11-12 21:17:24'),
-(7, 2, 11, '2025-11-17 18:28:17', '2025-11-17 18:36:55', 'tarde', 10.00, 30000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1, 0, 0, 30010.00, 30000.00, 0.00, 'sdjkfajsfna', '', 'cerrado', '2025-11-17 21:28:17');
+INSERT INTO `turnos_caja` (`id`, `sucursal_id`, `gerente_id`, `fecha_apertura`, `fecha_cierre`, `turno`, `monto_inicial`, `efectivo_ventas`, `tarjeta_ventas`, `transferencia_ventas`, `go_cuotas_ventas`, `credito_ventas`, `cobro_cuotas_credito`, `gastos_dia`, `retiros`, `depositos_banco`, `pares_vendidos`, `ingreso_pares`, `salida_pares`, `efectivo_cierre`, `venta_total_dia`, `diferencia_caja`, `notas_apertura`, `notas_cierre`, `numero_lote`, `estado`, `fecha_creacion`) VALUES
+(1, 2, 11, '2025-11-12 11:15:32', '2025-11-12 11:19:31', 'manana', 10.00, 5000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1, 0, 0, 5010.00, 5000.00, 0.00, 'cambio prueba', 'primera caja de prueba ', NULL, 'cerrado', '2025-11-12 14:15:32'),
+(2, 2, 11, '2025-11-12 11:20:51', '2025-11-12 15:37:25', 'tarde', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0, 0, 0, 0.00, 0.00, 0.00, '', '', NULL, 'cerrado', '2025-11-12 14:20:51'),
+(3, 2, 11, '2025-11-12 15:38:45', '2025-11-12 15:48:30', 'manana', 10.00, 120000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 4, 0, 0, 120010.00, 120000.00, 0.00, 'me demore por el trafico', '', NULL, 'cerrado', '2025-11-12 18:38:45'),
+(4, 2, 11, '2025-11-12 17:28:26', '2025-11-12 17:33:28', 'manana', 10.00, 5000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1, 0, 0, 5010.00, 5000.00, 0.00, '', '', NULL, 'cerrado', '2025-11-12 20:28:26'),
+(5, 2, 11, '2025-11-12 17:52:26', '2025-11-12 17:58:04', 'manana', 1000.00, 150000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 100000.00, 0.00, 0.00, 5, 0, 0, 51000.00, 150000.00, 0.00, 'tarde por trafico', '', NULL, 'cerrado', '2025-11-12 20:52:26'),
+(6, 2, 11, '2025-11-12 18:17:24', '2025-11-12 18:20:51', 'manana', 10000.00, 100000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 5, 0, 0, 110000.00, 100000.00, 0.00, '', '', NULL, 'cerrado', '2025-11-12 21:17:24'),
+(7, 2, 11, '2025-11-17 18:28:17', '2025-11-17 18:36:55', 'tarde', 10.00, 30000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1, 0, 0, 30010.00, 30000.00, 0.00, 'sdjkfajsfna', '', NULL, 'cerrado', '2025-11-17 21:28:17'),
+(8, 2, 11, '2026-05-06 01:12:56', '2026-05-06 01:13:24', 'manana', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0, 0, 0, 0.00, 0.00, 0.00, '', '', NULL, 'cerrado', '2026-05-06 04:12:56'),
+(9, 2, 11, '2026-05-06 15:15:16', '2026-05-06 15:16:48', 'manana', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0, 0, 0, 0.00, 0.00, 0.00, '', '', NULL, 'cerrado', '2026-05-06 18:15:16'),
+(10, 2, 11, '2026-05-07 11:56:05', '2026-05-07 12:07:27', 'manana', 0.00, 20000.00, 0.00, 0.00, 0.00, 0.00, 1.00, 2.00, 0.00, 0.00, 1, 0, 0, 19999.98, 20000.00, 0.98, '', '', NULL, 'cerrado', '2026-05-07 14:56:05');
 
 -- --------------------------------------------------------
 
@@ -990,15 +1044,15 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `rol_id`, `sucursal_id`, `nombre`, `apellido`, `email`, `password`, `telefono`, `dni`, `direccion`, `ciudad`, `provincia`, `codigo_postal`, `fecha_registro`, `ultimo_acceso`, `activo`, `verificado`) VALUES
-(3, 3, NULL, 'francisco', 'barrionuevo', 'fran2@example.com', '$2y$10$7eR1gUKH6QkW3h13XRf5qu37WPYXuTedaOSMgcrIpYflDsl1./qDK', '', NULL, NULL, NULL, NULL, NULL, '2025-10-17 13:53:12', '2026-04-22 00:08:54', 1, 0),
-(4, 1, NULL, 'cliente', 'nuevo', 'cliente.nuevo@gmail.com', '$2y$10$pznQdnqQ54GtMtvPjL/sfOEY/xG/04e2w5ROYMtMXwrkelnE27.Ka', '3834678854', '43141074', '', '', '', '', '2025-11-04 18:49:09', '2026-01-26 20:43:41', 1, 0),
+(3, 3, NULL, 'francisco', 'barrionuevo', 'fran2@example.com', '$2y$10$7eR1gUKH6QkW3h13XRf5qu37WPYXuTedaOSMgcrIpYflDsl1./qDK', '', NULL, NULL, NULL, NULL, NULL, '2025-10-17 13:53:12', '2026-05-06 16:39:44', 1, 0),
+(4, 1, NULL, 'cliente', 'nuevo', 'cliente.nuevo@gmail.com', '$2y$10$pznQdnqQ54GtMtvPjL/sfOEY/xG/04e2w5ROYMtMXwrkelnE27.Ka', '3834678854', '43141074', '', '', '', '', '2025-11-04 18:49:09', '2026-05-07 11:28:12', 1, 0),
 (5, 1, NULL, 'Ana', 'Martínez', 'ana.martinez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834111111', '30111111', NULL, NULL, NULL, NULL, '2025-11-11 00:57:21', NULL, 1, 0),
 (6, 1, NULL, 'Carlos', 'López', 'carlos.lopez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834222222', '30222222', NULL, NULL, NULL, NULL, '2025-10-27 00:57:21', NULL, 1, 0),
 (7, 1, NULL, 'María', 'Fernández', 'maria.fernandez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834333333', '30333333', NULL, NULL, NULL, NULL, '2025-10-12 00:57:21', NULL, 1, 0),
 (8, 1, NULL, 'Jorge', 'Ramírez', 'jorge.ramirez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834444444', '30444444', NULL, NULL, NULL, NULL, '2025-09-27 00:57:21', NULL, 1, 0),
 (9, 1, NULL, 'Laura', 'Torres', 'laura.torres@prueba.com', '$2y$10$qfQPvX3OR.m8Bxke3M6MsO2lhpix9HYt.pnxeKeXuAwVpwafmnNWu', '3834555555', '30555555', NULL, NULL, NULL, NULL, '2025-09-12 00:57:21', NULL, 1, 0),
 (10, 2, 1, 'Roberto', 'González', 'roberto.gonzalez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834666666', '25666666', NULL, NULL, NULL, NULL, '2025-08-13 00:57:21', NULL, 1, 0),
-(11, 2, 2, 'Patricia', 'Sánchez', 'patricia.sanchez@prueba.com', '$2y$10$3So7lSRuAw5d5HRhjS/zjOmeSTOESUtr5LoqBVAfbr2OaBqQW5FxW', '3834777777', '25777777', NULL, NULL, NULL, NULL, '2025-07-14 00:57:21', '2026-04-08 00:15:39', 1, 0),
+(11, 2, 2, 'Patricia', 'Sánchez', 'patricia.sanchez@prueba.com', '$2y$10$3So7lSRuAw5d5HRhjS/zjOmeSTOESUtr5LoqBVAfbr2OaBqQW5FxW', '3834777777', '25777777', NULL, NULL, NULL, NULL, '2025-07-14 00:57:21', '2026-05-07 11:45:32', 1, 0),
 (12, 2, 3, 'Miguel', 'Díaz', 'miguel.diaz@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834888888', '25888888', NULL, NULL, NULL, NULL, '2025-06-14 00:57:21', NULL, 1, 0),
 (13, 2, 4, 'Claudia', 'Pérez', 'claudia.perez@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834999999', '25999999', NULL, NULL, NULL, NULL, '2025-05-15 00:57:21', NULL, 1, 0),
 (14, 2, 5, 'Fernando', 'Ruiz', 'fernando.ruiz@prueba.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '3834000000', '25000000', NULL, NULL, NULL, NULL, '2025-04-25 00:57:21', NULL, 1, 0),
@@ -1028,20 +1082,24 @@ CREATE TABLE `ventas_diarias` (
   `tipo_venta` enum('mostrador','online') NOT NULL DEFAULT 'mostrador',
   `es_primera_cuota` tinyint(1) DEFAULT 0 COMMENT '1 si es primera cuota de crédito',
   `fecha_venta` datetime DEFAULT current_timestamp(),
-  `notas` text DEFAULT NULL COMMENT 'Observaciones de la venta'
+  `notas` text DEFAULT NULL COMMENT 'Observaciones de la venta',
+  `numero_cupon` varchar(50) DEFAULT NULL COMMENT 'Número de cupón del posnet (tarjeta)',
+  `transferencia_cliente` varchar(200) DEFAULT NULL COMMENT 'Nombre del cliente en transferencia',
+  `cliente_id` int(11) DEFAULT NULL COMMENT 'ID del usuario registrado (si aplica)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 --
 -- Volcado de datos para la tabla `ventas_diarias`
 --
 
-INSERT INTO `ventas_diarias` (`id`, `turno_id`, `sucursal_id`, `producto_id`, `producto_nombre`, `talle`, `color`, `cantidad`, `precio_unitario`, `subtotal`, `metodo_pago`, `tipo_venta`, `es_primera_cuota`, `fecha_venta`, `notas`) VALUES
-(1, 1, 2, NULL, 'ojotas ', '40', 'negro', 1, 5000.00, 5000.00, 'efectivo', 'mostrador', 0, '2025-11-12 11:16:53', 'venta de prueba'),
-(2, 3, 2, 20, 'Zapatos Golazos', '40', 'Negro', 4, 30000.00, 120000.00, 'efectivo', 'mostrador', 0, '2025-11-12 15:45:29', NULL),
-(3, 4, 2, 21, 'Ojotas Infantiles', '40', NULL, 1, 5000.00, 5000.00, 'efectivo', 'mostrador', 0, '2025-11-12 17:31:37', NULL),
-(4, 5, 2, 20, 'Zapatos Golazos', '38', 'Marrón', 5, 30000.00, 150000.00, 'efectivo', 'mostrador', 0, '2025-11-12 17:57:14', NULL),
-(5, 6, 2, 19, 'Campus Gamuza', '44', 'Negro', 5, 20000.00, 100000.00, 'efectivo', 'mostrador', 0, '2025-11-12 18:18:51', NULL),
-(6, 7, 2, 20, 'Zapatos Golazos', '44', NULL, 1, 30000.00, 30000.00, 'efectivo', 'mostrador', 0, '2025-11-17 18:31:12', NULL);
+INSERT INTO `ventas_diarias` (`id`, `turno_id`, `sucursal_id`, `producto_id`, `producto_nombre`, `talle`, `color`, `cantidad`, `precio_unitario`, `subtotal`, `metodo_pago`, `tipo_venta`, `es_primera_cuota`, `fecha_venta`, `notas`, `numero_cupon`, `transferencia_cliente`, `cliente_id`) VALUES
+(1, 1, 2, NULL, 'ojotas ', '40', 'negro', 1, 5000.00, 5000.00, 'efectivo', 'mostrador', 0, '2025-11-12 11:16:53', 'venta de prueba', NULL, NULL, NULL),
+(2, 3, 2, 20, 'Zapatos Golazos', '40', 'Negro', 4, 30000.00, 120000.00, 'efectivo', 'mostrador', 0, '2025-11-12 15:45:29', NULL, NULL, NULL, NULL),
+(3, 4, 2, 21, 'Ojotas Infantiles', '40', NULL, 1, 5000.00, 5000.00, 'efectivo', 'mostrador', 0, '2025-11-12 17:31:37', NULL, NULL, NULL, NULL),
+(4, 5, 2, 20, 'Zapatos Golazos', '38', 'Marrón', 5, 30000.00, 150000.00, 'efectivo', 'mostrador', 0, '2025-11-12 17:57:14', NULL, NULL, NULL, NULL),
+(5, 6, 2, 19, 'Campus Gamuza', '44', 'Negro', 5, 20000.00, 100000.00, 'efectivo', 'mostrador', 0, '2025-11-12 18:18:51', NULL, NULL, NULL, NULL),
+(6, 7, 2, 20, 'Zapatos Golazos', '44', NULL, 1, 30000.00, 30000.00, 'efectivo', 'mostrador', 0, '2025-11-17 18:31:12', NULL, NULL, NULL, NULL),
+(7, 10, 2, 19, 'Campus Gamuza', '35', 'Marrón', 1, 20000.00, 20000.00, 'efectivo', 'mostrador', 0, '2026-05-07 12:01:43', NULL, NULL, NULL, NULL);
 
 --
 -- Disparadores `ventas_diarias`
@@ -1153,6 +1211,13 @@ ALTER TABLE `cobro_cuotas_credito`
   ADD KEY `idx_turno` (`turno_id`),
   ADD KEY `idx_sucursal` (`sucursal_id`),
   ADD KEY `idx_fecha` (`fecha_cobro`);
+
+--
+-- Indices de la tabla `configuracion`
+--
+ALTER TABLE `configuracion`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `clave` (`clave`);
 
 --
 -- Indices de la tabla `contacto`
@@ -1311,6 +1376,15 @@ ALTER TABLE `stock_sucursal`
   ADD KEY `idx_cantidad` (`cantidad`);
 
 --
+-- Indices de la tabla `stock_sucursal_detalle`
+--
+ALTER TABLE `stock_sucursal_detalle`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_prod_suc_color_talle` (`producto_id`,`sucursal_id`,`color`,`talle`),
+  ADD KEY `idx_producto` (`producto_id`),
+  ADD KEY `idx_sucursal` (`sucursal_id`);
+
+--
 -- Indices de la tabla `sucursales`
 --
 ALTER TABLE `sucursales`
@@ -1361,7 +1435,8 @@ ALTER TABLE `ventas_diarias`
   ADD KEY `idx_sucursal` (`sucursal_id`),
   ADD KEY `idx_producto` (`producto_id`),
   ADD KEY `idx_fecha` (`fecha_venta`),
-  ADD KEY `idx_metodo_pago` (`metodo_pago`);
+  ADD KEY `idx_metodo_pago` (`metodo_pago`),
+  ADD KEY `idx_cliente_id` (`cliente_id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -1377,13 +1452,13 @@ ALTER TABLE `bajas_productos`
 -- AUTO_INCREMENT de la tabla `banner_slides`
 --
 ALTER TABLE `banner_slides`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `carrito`
 --
 ALTER TABLE `carrito`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `categorias`
@@ -1395,7 +1470,13 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `cobro_cuotas_credito`
 --
 ALTER TABLE `cobro_cuotas_credito`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `configuracion`
+--
+ALTER TABLE `configuracion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `contacto`
@@ -1413,13 +1494,13 @@ ALTER TABLE `detalle_pedidos`
 -- AUTO_INCREMENT de la tabla `favoritos`
 --
 ALTER TABLE `favoritos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `gastos_sucursal`
 --
 ALTER TABLE `gastos_sucursal`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `imagenes_productos`
@@ -1488,6 +1569,12 @@ ALTER TABLE `stock_sucursal`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
+-- AUTO_INCREMENT de la tabla `stock_sucursal_detalle`
+--
+ALTER TABLE `stock_sucursal_detalle`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `sucursales`
 --
 ALTER TABLE `sucursales`
@@ -1503,7 +1590,7 @@ ALTER TABLE `transferencias_stock`
 -- AUTO_INCREMENT de la tabla `turnos_caja`
 --
 ALTER TABLE `turnos_caja`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -1515,7 +1602,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `ventas_diarias`
 --
 ALTER TABLE `ventas_diarias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Restricciones para tablas volcadas
@@ -1620,6 +1707,13 @@ ALTER TABLE `reviews`
 ALTER TABLE `stock_sucursal`
   ADD CONSTRAINT `stock_sucursal_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `stock_sucursal_ibfk_2` FOREIGN KEY (`sucursal_id`) REFERENCES `sucursales` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `stock_sucursal_detalle`
+--
+ALTER TABLE `stock_sucursal_detalle`
+  ADD CONSTRAINT `fk_ssd_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_ssd_sucursal` FOREIGN KEY (`sucursal_id`) REFERENCES `sucursales` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `transferencias_stock`

@@ -11,8 +11,8 @@
  * - Acceso a pedidos y mensajes
  */
 
-require_once('includes/config.php');
-require_once('includes/verificar-cliente.php');
+require_once('../includes/config.php');
+require_once('../includes/verificar-cliente.php');
 
 $titulo_pagina = "Mi Cuenta";
 $usuario_id = $_SESSION['usuario_id'];
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cambiar_password'])) {
     }
 }
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -260,7 +260,7 @@ require_once('includes/header.php');
                         </div>
                     </a>
                     
-                    <a href="index.php" class="list-group-item list-group-item-action">
+                    <a href="<?php echo BASE_PATH; ?>index.php" class="list-group-item list-group-item-action">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-shop text-info fs-4 me-3"></i>
                             <div class="flex-grow-1">
@@ -515,7 +515,7 @@ require_once('includes/header.php');
     </div>
 </div>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>
 
 <script>
 // Validar que las contraseñas coincidan

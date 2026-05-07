@@ -633,25 +633,27 @@ document.getElementById('form-editar-slide').addEventListener('submit', async fu
 
 // ── Eliminar slide ───────────────────────────────────────────────────────────
 document.querySelectorAll('.btn-eliminar').forEach(btn => {
-    btn.addEventListener('click', async function () {
-        if (!confirm(`¿Eliminar la slide "${this.dataset.titulo}"? Se borrará también la imagen.`)) return;
-
+    btn.addEventListener('click', function () {
+        const titulo = this.dataset.titulo;
         const id = this.dataset.id;
-        try {
-            const resp = await fetch('ajax/eliminar-slide.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: parseInt(id) })
-            });
-            const data = await resp.json();
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error: ' + data.mensaje);
+        MC.confirm(`¿Eliminar la slide "${titulo}"? Se borrará también la imagen.`, async function(ok) {
+            if (!ok) return;
+            try {
+                const resp = await fetch('ajax/eliminar-slide.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: parseInt(id) })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    MC.alert('Error: ' + data.mensaje, 'danger');
+                }
+            } catch {
+                MC.alert('Error de conexión', 'danger');
             }
-        } catch {
-            alert('Error de conexión');
-        }
+        }, { tipo: 'danger', titulo: 'Eliminar slide', btnOk: 'Sí, eliminar' });
     });
 });
 

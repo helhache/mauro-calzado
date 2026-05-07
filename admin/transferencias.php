@@ -231,33 +231,33 @@ require_once('includes/header-admin.php');
 </div>
 
 <script>
-async function cambiarEstado(id, estado, nombreProducto) {
-    const labels = { en_transito: 'En tránsito', recibido: 'Recibido', cancelado: 'Cancelado' };
+function cambiarEstado(id, estado, nombreProducto) {
     const confirmaciones = {
-        en_transito: `¿Aprobar y marcar como enviada la transferencia de "${nombreProducto}"?\nEsto descontará el stock de la sucursal origen.`,
-        recibido:    `¿Confirmar recepción de "${nombreProducto}"?\nEsto sumará el stock a la sucursal destino.`,
+        en_transito: `¿Aprobar y marcar como enviada la transferencia de "${nombreProducto}"? Esto descontará el stock de la sucursal origen.`,
+        recibido:    `¿Confirmar recepción de "${nombreProducto}"? Esto sumará el stock a la sucursal destino.`,
         cancelado:   `¿Cancelar la transferencia de "${nombreProducto}"?`
     };
 
-    if (!confirm(confirmaciones[estado])) return;
+    MC.confirm(confirmaciones[estado], async function(ok) {
+        if (!ok) return;
+        try {
+            const resp = await fetch('ajax/actualizar-transferencia.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, estado })
+            });
+            const data = await resp.json();
 
-    try {
-        const resp = await fetch('ajax/actualizar-transferencia.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, estado })
-        });
-        const data = await resp.json();
-
-        if (data.success) {
-            alert(data.mensaje);
-            location.reload();
-        } else {
-            alert('Error: ' + data.mensaje);
+            if (data.success) {
+                MC.alert(data.mensaje, 'success');
+                location.reload();
+            } else {
+                MC.alert('Error: ' + data.mensaje, 'danger');
+            }
+        } catch (e) {
+            MC.alert('Error de conexión', 'danger');
         }
-    } catch (e) {
-        alert('Error de conexión');
-    }
+    }, { tipo: 'warning', titulo: 'Confirmar acción', btnOk: 'Sí, continuar' });
 }
 </script>
 

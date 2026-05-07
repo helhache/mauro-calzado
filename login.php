@@ -222,7 +222,7 @@ require_once('includes/header.php');
                         
                         <!-- Link de contraseña olvidada -->
                         <div class="text-center mb-3">
-                            <a href="recuperar-password.php" class="text-decoration-none">
+                            <a href="<?php echo BASE_PATH; ?>auth/recuperar-password.php" class="text-decoration-none">
                                 ¿Olvidaste tu contraseña?
                             </a>
                         </div>
@@ -248,8 +248,8 @@ require_once('includes/header.php');
             <!-- Información adicional -->
             <div class="text-center mt-4 text-muted small">
                 <p>Al iniciar sesión aceptas nuestros 
-                    <a href="terminos.php">Términos y Condiciones</a> y 
-                    <a href="privacidad.php">Política de Privacidad</a>
+                    <a href="<?php echo BASE_PATH; ?>info/terminos.php">Términos y Condiciones</a> y
+                    <a href="<?php echo BASE_PATH; ?>info/privacidad.php">Política de Privacidad</a>
                 </p>
             </div>
         </div>
@@ -259,8 +259,6 @@ require_once('includes/header.php');
 <?php require_once('includes/footer.php'); ?>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/main.js"></script>
 <script src="js/validaciones.js"></script>
 <script>
 // Toggle password

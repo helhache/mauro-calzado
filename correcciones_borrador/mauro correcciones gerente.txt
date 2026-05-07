@@ -1,0 +1,30 @@
+perfil gerente
+
+dasboard muy básico, solo muestra información del local y las tarjetas con datos, me gustaria que se añada algún grafico útiles dejo a tu criterio. 
+nota algo que note es que solo desde dashboard.php se puede acceder a productos.php
+
+necesito se defina si se va a usar productos.php p stock.php porque nose si son lo mismo si los unimos y hacemos que en unas sola pagina se hagan todas las acciones, 
+ante esto te comento productos.php en el apartado de acciones no funciona ninguna hay que arreglarlo o definir las acciones 
+sabes que también tenemos que gestionar de que forma los gerente dicen cuantos pares y que colores le quedan sobre cada producto.
+como podemos filtar la siguiente situación.
+como cliente eligo un par, color x talle x, envió a carrito, continueo el pago y selecciono la sucursal. como saber si esa sucursal tiene ese par en ese color y en ese talle, ? como podemos solucionar eso. 
+
+caja.php 
+me disgusta el modelo de caja que estamos usado hay que cambiarlo por completo o hacerle algunas arreglos
+en la caja 
+en registrar una venta al momento de escoger el método de pago si eligo tajeta me tiene que permitir colocar el numero de cupon que da el posnet que corresponde a esa venta
+si es tranferencia ponerl los datos del cliente (nombre apellido)
+poder cargarle la compra a un cliente con cuenta, es decir si un cliente que tiene cuenta en la pagina va a comprar de forma presencial al local al momento de pagar yo puedo cargar su compra para que le salga en su historial de compras o en su perfil
+asi como  se puede cargar clientes con cuenta también si el cliente no tiene cuenta solo se necesita el nombre para tener sus dato de quien compro 
+
+en cobrar cuota
+que en nombre del cliente solo se pueda poner letras no números y que en dni solo numero con un limite de 8 caracteres
+
+al momento de cerra turno 
+que me diga cuantos cobros se hicieron con cada método, que me pida numero de lote del tick final de tarjetas .
+que al momento de cerra turno salga la posibilidad de exporta el resumen de la caja en formato exel, o pdf (si es pdf que sea una tira si necesitas te paso una foto de ejemplo como me gustaria)
+
+mensajes y notificaciones internas 
+hay que cambiar por completo el sistema de notificaciones y mensajeria entre roles. el que estamos usando esta roto. 
+
+ 

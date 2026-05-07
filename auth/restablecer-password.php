@@ -10,7 +10,7 @@
  * - Marcar token como usado
  */
 
-require_once('includes/config.php');
+require_once('../includes/config.php');
 
 $titulo_pagina = "Restablecer Contraseña";
 
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['restablecer']) && $tok
     }
 }
 
-require_once('includes/header.php');
+require_once('../includes/header.php');
 ?>
 
 <div class="container py-5">
@@ -132,11 +132,11 @@ require_once('includes/header.php');
                         </div>
 
                         <div class="d-grid gap-2">
-                            <a href="login.php" class="btn btn-primary btn-lg">
+                            <a href="<?php echo BASE_PATH; ?>login.php" class="btn btn-primary btn-lg">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>
                                 Iniciar Sesión
                             </a>
-                            <a href="index.php" class="btn btn-outline-secondary">
+                            <a href="<?php echo BASE_PATH; ?>index.php" class="btn btn-outline-secondary">
                                 <i class="bi bi-house me-2"></i>
                                 Ir al Inicio
                             </a>
@@ -266,7 +266,7 @@ require_once('includes/header.php');
                                 <i class="bi bi-arrow-clockwise me-2"></i>
                                 Solicitar Nuevo Enlace
                             </a>
-                            <a href="login.php" class="btn btn-outline-secondary">
+                            <a href="<?php echo BASE_PATH; ?>login.php" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>
                                 Volver al Login
                             </a>
@@ -356,16 +356,16 @@ document.getElementById('formRestablecer')?.addEventListener('submit', function(
 
     if (nueva.length < 6) {
         e.preventDefault();
-        alert('La contraseña debe tener al menos 6 caracteres');
+        MC.alert('La contraseña debe tener al menos 6 caracteres', 'warning');
         return false;
     }
 
     if (nueva !== confirmar) {
         e.preventDefault();
-        alert('Las contraseñas no coinciden');
+        MC.alert('Las contraseñas no coinciden', 'warning');
         return false;
     }
 });
 </script>
 
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('../includes/footer.php'); ?>

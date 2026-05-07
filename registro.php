@@ -11,7 +11,7 @@ require_once('includes/config.php');
 
 // Si ya está logueado, redirigir
 if (estaLogueado()) {
-    redirigir('index.php');
+    redirigir(SITE_URL . 'index.php');
 }
 
 $titulo_pagina = "Registro";
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             mysqli_stmt_close($stmt);
             
             // Redirigir a login con mensaje de éxito
-            redirigir('login.php?registro=exitoso');
+            redirigir(SITE_URL . 'login.php?registro=exitoso');
             
         } else {
             // Error al insertar
@@ -342,8 +342,8 @@ require_once('includes/header.php');
                                        required>
                                 <label class="form-check-label" for="acepta_terminos">
                                     Acepto los 
-                                    <a href="terminos.php" target="_blank">Términos y Condiciones</a> y la
-                                    <a href="privacidad.php" target="_blank">Política de Privacidad</a>
+                                    <a href="<?php echo BASE_PATH; ?>info/terminos.php" target="_blank">Términos y Condiciones</a> y la
+                                    <a href="<?php echo BASE_PATH; ?>info/privacidad.php" target="_blank">Política de Privacidad</a>
                                 </label>
                                 <?php if (isset($errores['terminos'])): ?>
                                     <div class="invalid-feedback d-block text-danger">
@@ -365,7 +365,7 @@ require_once('includes/header.php');
                         <div class="text-center">
                             <p class="mb-0">
                                 ¿Ya tienes cuenta?
-                                <a href="login.php" class="fw-bold text-decoration-none">
+                                <a href="<?php echo BASE_PATH; ?>login.php" class="fw-bold text-decoration-none">
                                     Inicia sesión aquí
                                 </a>
                             </p>
@@ -380,8 +380,6 @@ require_once('includes/header.php');
 <?php require_once('includes/footer.php'); ?>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/main.js"></script>
 <script src="js/validaciones.js"></script>
 <script>
 // Toggle password
